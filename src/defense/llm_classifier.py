@@ -3,7 +3,6 @@ import json
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
 
 load_dotenv(os.path.join(os.getcwd(), '.env'))
 

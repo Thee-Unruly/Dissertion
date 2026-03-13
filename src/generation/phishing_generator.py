@@ -3,7 +3,6 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
-from langchain.chains import LLMChain
 from src.generation.prompt_templates import get_template
 
 # Load configurations

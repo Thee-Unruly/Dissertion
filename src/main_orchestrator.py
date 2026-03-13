@@ -5,6 +5,8 @@ from src.generation.phishing_generator import PhishingGenerator
 from src.sandbox.mock_smtp import MockSMTP
 from src.sandbox.mailtrap_bridge import MailtrapBridge
 from src.generation.url_obfuscator import generate_obfuscated_url
+import sys
+import time
 
 def run_experiment(limit_targets=2):
     """
@@ -12,7 +14,7 @@ def run_experiment(limit_targets=2):
     - Generates 3 variations per target (Low, High, Passive-Aggressive).
     - Uses obfuscated URLs for realism.
     """
-    print("--- STARTING ENHANCED DISSERTATION EXPERIMENT ---")
+    print(f"--- STARTING ENHANCED DISSERTATION EXPERIMENT (Targets: {limit_targets}) ---")
     
     mode = os.getenv("GATEWAY_MODE", "MOCK")
     print(f"Operational Mode: {mode}")
@@ -22,7 +24,7 @@ def run_experiment(limit_targets=2):
         return
         
     df = pd.read_csv("data/processed_enron.csv")
-    targets = df.dropna(subset=['X-From', 'Date', 'Subject', 'Body']).sample(n=limit_targets)
+    targets = df.dropna(subset=['X-From', 'To', 'Date', 'Subject', 'Body']).sample(n=min(limit_targets, len(df)))
     
     generator = PhishingGenerator(model_name="llama-3.3-70b-versatile")
     
@@ -41,7 +43,7 @@ def run_experiment(limit_targets=2):
         org = "Enron Corporation"
         context = f"Internal email regarding: {target['Subject']}"
         
-        # 1. Generate Obfuscated URL once per target (or per variation if preferred)
+        # 1. Generate Obfuscated URL once per target
         phishing_url = generate_obfuscated_url("enron.com")
 
         for tone in tones:
@@ -58,17 +60,19 @@ def run_experiment(limit_targets=2):
             generated_email_text = generator.generate("spear_phishing", params)
             
             if generated_email_text:
-                subject = f"[{tone}] " + params['context']
                 if "Subject:" in generated_email_text:
                     parts = generated_email_text.split("Body:", 1)
                     subject = parts[0].replace("Subject:", "").strip()
                     body = parts[1].strip() if len(parts) > 1 else generated_email_text
                 else:
+                    subject = f"[{tone}] " + params['context']
                     body = generated_email_text
                 
                 recipient = target['To'] if pd.notnull(target['To']) else f"{target_name}@enron.local"
                 
                 if mode == "MAILTRAP":
+                    # Add delay to avoid rate limits
+                    time.sleep(2)
                     bridge.send_attack(
                         sender="internal-alert@enron-security.local",
                         recipient=recipient,
@@ -91,10 +95,12 @@ def run_experiment(limit_targets=2):
 
     if mode == "MAILTRAP":
         print("\n--- SYNCING INBOUND FROM MAILTRAP (Blue Team View) ---")
+        time.sleep(5) # Wait for processing
         bridge.fetch_inbound_emails()
 
     print("\n--- ENHANCED EXPERIMENT COMPLETED ---")
     print(f"Check {'data/mock_inbox/' if mode == 'MOCK' else 'Mailtrap UI'} for the results.")
 
 if __name__ == "__main__":
-    run_experiment()
+    limit = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+    run_experiment(limit)
