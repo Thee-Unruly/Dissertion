@@ -14,17 +14,7 @@ class PhishingGenerator:
         env_path = os.path.join(os.getcwd(), '.env')
         load_dotenv(env_path)
         
-        print(f"DEBUG: Looking for .env at: {env_path}")
-        print(f"DEBUG: .env exists: {os.path.exists(env_path)}")
-        
-        if os.path.exists(env_path):
-            with open(env_path, 'r') as f:
-                print(f"DEBUG: .env content first 10 chars: {f.read()[:10]}")
-        
         api_key = os.getenv("GROQ_API_KEY")
-        if not api_key:
-            print("Warning: GROQ_API_KEY not found in environment.")
-            print(f"DEBUG: Env keys: {[k for k in os.environ.keys() if 'GROQ' in k]}")
         
         self.llm = ChatGroq(
             groq_api_key=api_key,
@@ -49,7 +39,7 @@ class PhishingGenerator:
             metadata = {
                 "timestamp": datetime.now().isoformat(),
                 "attack_type": attack_type,
-                "model": self.llm.model,
+                "model": self.llm.model_name,
                 "parameters": params,
                 "generated_content": response
             }

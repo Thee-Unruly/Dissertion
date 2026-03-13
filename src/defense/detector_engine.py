@@ -91,9 +91,9 @@ class DetectorEngine:
             f.write(json.dumps(entry) + "\n")
 
 if __name__ == "__main__":
-    # Test run (Heuristics only by default)
+    # Test run (Enabling LLM for full evaluation)
     detector = DetectorEngine()
-    results = detector.scan_and_analyze(use_llm=False)
+    results = detector.scan_and_analyze(use_llm=True)
     
     if results:
         print("\n--- DETECTION SUMMARY ---")
