@@ -7,13 +7,24 @@ from langchain.chains import LLMChain
 from src.generation.prompt_templates import get_template
 
 # Load configurations
-load_dotenv()
+# load_dotenv moved inside class for robustness
 
 class PhishingGenerator:
     def __init__(self, model_name="llama-3.3-70b-versatile"):
+        env_path = os.path.join(os.getcwd(), '.env')
+        load_dotenv(env_path)
+        
+        print(f"DEBUG: Looking for .env at: {env_path}")
+        print(f"DEBUG: .env exists: {os.path.exists(env_path)}")
+        
+        if os.path.exists(env_path):
+            with open(env_path, 'r') as f:
+                print(f"DEBUG: .env content first 10 chars: {f.read()[:10]}")
+        
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
-            print("Warning: GROQ_API_KEY not found in .env. Please add it.")
+            print("Warning: GROQ_API_KEY not found in environment.")
+            print(f"DEBUG: Env keys: {[k for k in os.environ.keys() if 'GROQ' in k]}")
         
         self.llm = ChatGroq(
             groq_api_key=api_key,
