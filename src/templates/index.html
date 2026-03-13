@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishDefense AI Hub</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #05070a;
+            --accent-glow: #00f2ff;
+            --off-glow: #ffcc00;
+            --eval-glow: #00ff99;
+            --alert-red: #ff3366;
+            --warn-gold: #ffcc00;
+            --safe-green: #00ff99;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 51, 102, 0.05) 0%, transparent 40%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, var(--accent-glow), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-glow);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0.5rem 0;
+            color: var(--accent-glow);
+        }
+
+        .stat-label {
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--glass);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scan-btn {
+            background: linear-gradient(45deg, #00f2ff, #0072ff);
+            border: none;
+            color: #fff;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .scan-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .email-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .email-item {
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .email-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--glass-border);
+        }
+
+        .email-item.active {
+            border-color: var(--accent-glow);
+            background: rgba(0, 242, 255, 0.05);
+        }
+
+        .email-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-ALERT {
+            background: var(--alert-red);
+        }
+
+        .status-QUARANTINE {
+            background: var(--warn-gold);
+            color: #000;
+        }
+
+        .status-PASS {
+            background: var(--safe-green);
+            color: #000;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-tab {
+            padding: 0.8rem 1.5rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            transition: 0.3s;
+            color: #888;
+        }
+
+        .nav-tab.active {
+            border-color: var(--accent-glow);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        .eval-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            display: grid;
+        }
+
+        .offensive-card {
+            border-left: 2px solid var(--off-glow);
+        }
+
+        .defensive-card {
+            border-left: 2px solid var(--accent-glow);
+        }
+
+        .detail-view {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 8px solid var(--accent-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            position: relative;
+        }
+
+        .finding-item {
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--accent-glow);
+            font-size: 0.9rem;
+        }
+
+        .finding-label {
+            font-weight: 600;
+            color: var(--accent-glow);
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-glow);
+        }
+
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>PHISH-DEFENSE AI <span style="font-size: 0.8rem; opacity: 0.5;">HUB v2.0</span></h1>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div class="loader" id="loader"></div>
+                <button class="scan-btn" onclick="startGeneration()"
+                    style="background: linear-gradient(45deg, #ffcc00, #ff8800);">Generate Attacks</button>
+                <button class="scan-btn" onclick="startScan()">Defense Scan</button>
+            </div>
+        </header>
+
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchView('defense')">Blue Team (Defense)</div>
+            <div class="nav-tab" onclick="switchView('offense')">Red Team (Offense)</div>
+            <div class="nav-tab" onclick="switchView('eval')">Lab Evaluation</div>
+        </div>
+
+        <!-- BLUE TEAM VIEW -->
+        <div id="view-defense" class="view-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Analyzed</div>
+                    <div class="stat-value" id="total-scanned">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Detection Rate</div>
+                    <div class="stat-value" id="detection-rate">--%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">System Status</div>
+                    <div class="stat-value" style="font-size: 1.5rem; color: var(--safe-green);">OPTIMAL</div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-title">
+                        <span>Analysis Feed</span>
+                        <span id="feed-count" style="font-size: 0.8rem; color: #888;"></span>
+                    </div>
+                    <div class="email-list" id="email-list"></div>
+                </div>
+
+                <div class="card detail-view" id="detail-card">
+                    <div class="card-title">Analysis Intelligence</div>
+                    <div id="no-detail" style="text-align: center; color: #888; padding: 3rem;">
+                        Select an email to view deep forensics
+                    </div>
+                    <div id="detail-content" style="display: none;">
+                        <div class="score-circle" id="detail-score">--</div>
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <span class="status-badge" id="detail-status">--</span>
+                        </div>
+
+                        <div class="finding-item">
+                            <span class="finding-label">Heuristic Findings</span>
+                            <div id="heuristic-findings"></div>
+                        </div>
+
+                        <div class="finding-item">
+                            <span class="finding-label">Behavioral Insight</span>
+                            <div id="behavioral-findings"></div>
+                        </div>
+
+                        <div class="finding-item">
+                            <span class="finding-label">AI Reasoning (LLM)</span>
+                            <div id="llm-findings"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RED TEAM VIEW -->
+        <div id="view-offense" class="view-section">
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-title">Offensive Generation Log</div>
+                <div class="email-list" id="offense-list"></div>
+            </div>
+        </div>
+
+        <!-- EVALUATION VIEW -->
+        <div id="view-eval" class="view-section">
+            <div class="eval-grid">
+                <div class="card">
+                    <div class="card-title">Detection Performance</div>
+                    <div id="eval-metrics" style="padding: 1rem;">
+                        <div class="finding-item">
+                            <span class="finding-label">Overall Accuracy</span>
+                            <div id="m-acc" style="font-size: 1.5rem; font-family: 'Orbitron';">--%</div>
+                        </div>
+                        <div class="finding-item">
+                            <span class="finding-label">Avg Risk Score</span>
+                            <div id="m-risk" style="font-size: 1.5rem; font-family: 'Orbitron';">--</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Scientific Contribution</div>
+                    <div id="eval-insight" style="font-size: 0.9rem; line-height: 1.6; color: #ccc;">
+                        The system is analyzing the correlation between adversarial tone (High vs Low Urgency) and
+                        detector confidence.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDefenseData = [];
+        let currentOffenseData = [];
+
+        function switchView(view) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(`view-${view}`).classList.add('active');
+            event.target.classList.add('active');
+
+            if (view === 'eval') updateEvalView();
+        }
+
+        async function fetchAllData() {
+            try {
+                // Fetch Defense
+                const defResp = await fetch('/api/results');
+                currentDefenseData = await defResp.json();
+                updateStats(currentDefenseData);
+                renderList(currentDefenseData);
+
+                // Fetch Offense
+                const offResp = await fetch('/api/offense_logs');
+                currentOffenseData = await offResp.json();
+                renderOffenseList(currentOffenseData);
+            } catch (error) {
+                console.error("Error fetching results:", error);
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('total-scanned').innerText = data.length;
+            const alerts = data.filter(d => d.status !== 'PASS').length;
+            const rate = data.length > 0 ? (alerts / data.length * 100).toFixed(1) : 0;
+            document.getElementById('detection-rate').innerText = rate + '%';
+        }
+
+        function renderList(data) {
+            const list = document.getElementById('email-list');
+            list.innerHTML = '';
+            [...data].reverse().forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `email-item`;
+                div.onclick = () => showDetail(item, div);
+
+                div.innerHTML = `
+                    <div class="email-header">
+                        <span style="font-weight: 600; color: var(--accent-glow);">${item.sender}</span>
+                        <span class="status-badge status-${item.status}">${item.status}</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #ccc;">${item.heuristics.findings[0]?.substring(0, 60) || 'Pattern analysis complete'}...</div>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('feed-count').innerText = `${data.length} records found`;
+        }
+
+        function renderOffenseList(data) {
+            const list = document.getElementById('offense-list');
+            list.innerHTML = '';
+            [...data].reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = `email-item offensive-card`;
+                div.innerHTML = `
+                    <div class="email-header">
+                        <span style="font-weight: 600; color: var(--off-glow);">${item.attack_type.toUpperCase()} - ${item.parameters.tone_style || 'N/A'}</span>
+                        <span style="font-size: 0.7rem; color: #888;">Target: ${item.parameters.target_name}</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #ccc; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-top: 0.5rem; font-family: monospace;">
+                        ${item.generated_content.substring(0, 150)}...
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updateEvalView() {
+            if (currentDefenseData.length === 0) return;
+            const alerts = currentDefenseData.filter(d => d.status !== 'PASS').length;
+            const avgRisk = currentDefenseData.reduce((acc, curr) => acc + curr.final_risk_score, 0) / currentDefenseData.length;
+
+            document.getElementById('m-acc').innerText = (alerts / currentDefenseData.length * 100).toFixed(1) + '%';
+            document.getElementById('m-risk').innerText = avgRisk.toFixed(1);
+        }
+
+        function showDetail(item, element) {
+            document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            document.getElementById('no-detail').style.display = 'none';
+            document.getElementById('detail-content').style.display = 'block';
+
+            document.getElementById('detail-score').innerText = item.final_risk_score.toFixed(0);
+            document.getElementById('detail-status').innerText = item.status;
+            document.getElementById('detail-status').className = `status-badge status-${item.status}`;
+
+            document.getElementById('heuristic-findings').innerText = item.heuristics.findings.join('\n') || 'No major heuristic flags.';
+            document.getElementById('behavioral-findings').innerText = item.behavioral.finding;
+            document.getElementById('llm-findings').innerText = item.llm_analysis ? item.llm_analysis.analysis : 'LLM classification not processed.';
+        }
+
+        async function startGeneration() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block';
+            try {
+                await fetch('/api/run_offense', { method: 'POST' });
+                fetchAllData();
+            } catch (error) { alert("Generation failed."); }
+            finally { loader.style.display = 'none'; }
+        }
+
+        async function startScan() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block';
+            try {
+                await fetch('/api/run_scan', { method: 'POST' });
+                fetchAllData();
+            } catch (error) { alert("Scan failed."); }
+            finally { loader.style.display = 'none'; }
+        }
+
+        fetchAllData();
+        setInterval(fetchAllData, 10000);
+    </script>
+</body>
+
+</html>

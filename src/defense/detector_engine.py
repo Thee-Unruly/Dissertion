@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 from src.defense.heuristic_analyzer import HeuristicAnalyzer
 from src.defense.llm_classifier import LLMClassifier
+from src.defense.behavioral_baseline import BehavioralBaseline
 
 class DetectorEngine:
     """
@@ -17,6 +18,7 @@ class DetectorEngine:
         self.inbox_path = inbox_path
         self.target_domain = target_domain
         self.heuristic_analyzer = HeuristicAnalyzer(target_domain=target_domain)
+        self.behavioral_baseline = BehavioralBaseline()
         # We'll initialize LLM classifier only if needed to save tokens during testing
         self.llm_classifier = None 
         self.results_log = "data/defense_analysis_v1.jsonl"
@@ -56,7 +58,15 @@ class DetectorEngine:
             # 1. Heuristic Analysis
             h_results = self.heuristic_analyzer.analyze(subject, body)
             
-            # 2. LLM Analysis (Optional)
+            # 2. Behavioral Analysis
+            sender = email_data.get("sender", "unknown")
+            recipient = email_data.get("recipient", "unknown")
+            is_normal = self.behavioral_baseline.check_relationship(sender, recipient)
+            
+            bh_score = 0 if is_normal == 1.0 else 30 # Add 30 points if the relationship is new/unseen
+            bh_finding = f"Behavioral Anomaly: Unseen communication pair ({sender} -> {recipient})" if bh_score > 0 else "Normal: Established communication pair."
+
+            # 3. LLM Analysis (Optional)
             l_results = None
             if use_llm:
                 l_results = self.llm_classifier.analyze(subject, body)
@@ -65,8 +75,14 @@ class DetectorEngine:
             entry = {
                 "timestamp": datetime.now().isoformat(),
                 "file": filename,
+                "sender": sender,
+                "recipient": recipient,
                 "original_metadata": email_data.get("metadata", {}),
                 "heuristics": h_results,
+                "behavioral": {
+                    "score": bh_score,
+                    "finding": bh_finding
+                },
                 "llm_analysis": l_results
             }
             
@@ -74,9 +90,14 @@ class DetectorEngine:
             h_score = h_results['score']
             l_score = l_results['risk_score'] if l_results else 0
             
-            # Weigh LLM heavier if available
-            combined_score = (h_score * 0.4 + l_score * 0.6) if use_llm else h_score
-            entry["final_risk_score"] = combined_score
+            # Weigh LLM, Heuristics and Behavior
+            # Logic: 30% Heuristics, 30% Behavior, 40% LLM if available
+            if use_llm:
+                combined_score = (h_score * 0.3 + bh_score * 0.3 + l_score * 0.4)
+            else:
+                combined_score = (h_score * 0.5 + bh_score * 0.5)
+            
+            entry["final_risk_score"] = min(combined_score, 100)
             entry["status"] = "ALERT" if combined_score >= 50 else "QUARANTINE" if combined_score >= 30 else "PASS"
 
             analysis_report.append(entry)
