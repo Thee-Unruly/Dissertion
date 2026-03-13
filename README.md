@@ -1,4 +1,4 @@
-# PhishDefense AI Hub 🛡️🤖
+# PhishDefense AI Hub 🛡️
 
 **An Advanced Adversarial Framework for Phishing Detection & Behavioral Analysis.**
 
@@ -6,7 +6,7 @@ This project is a scientific research platform designed for a dissertation on AI
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 ### 1. Red Team (Adversarial Generation)
 - **Spear Phishing Engine**: Generates highly personalized phishing emails based on real-world organizational data (Enron Corpus).
@@ -68,7 +68,7 @@ MODEL_NAME=llama-3.3-70b-versatile
 ## 📈 Running the Experiment
 
 1. **Start the Dashboard**:
-   ```powershell
+   ```gitbash
    $env:PYTHONPATH="."
    python src/dashboard_app.py
    ```
