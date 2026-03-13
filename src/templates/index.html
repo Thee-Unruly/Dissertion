@@ -475,13 +475,18 @@
 
             <div class="card" style="margin-top: 2rem;">
                 <div class="card-title">Scientific Contribution</div>
-                <div id="eval-insight"
-                    style="font-size: 0.95rem; line-height: 1.6; color: #ccc; column-count: 2; column-gap: 2rem;">
-                    The system is currently evaluating the <strong>Adversarial Gap</strong>—the difference between
-                    automated pattern recognition (heuristics) and semantic understanding (LLM).
-                    Preliminary data suggests that high-urgency tones trigger stronger heuristic flags, while
-                    passive-aggressive tones require deep behavioral analysis to detect anomalies
-                    in communication frequency and hierarchy.
+                <div id="eval-insight" style="font-size: 0.95rem; line-height: 1.6; color: #ccc;">
+                    <div style="column-count: 2; column-gap: 2rem; margin-bottom: 2rem;">
+                        The system is currently evaluating the <strong>Adversarial Gap</strong>—the difference between
+                        automated pattern recognition (heuristics) and semantic understanding (LLM).
+                        Preliminary data suggests that high-urgency tones trigger stronger heuristic flags, while
+                        passive-aggressive tones require deep behavioral analysis to detect anomalies
+                        in communication frequency and hierarchy.
+                    </div>
+                    <button class="scan-btn" onclick="window.location.href='/api/export_report'"
+                        style="background: linear-gradient(45deg, var(--eval-glow), #00cc77); width: 100%;">
+                        Download Data for Dissertation Summary (.txt)
+                    </button>
                 </div>
             </div>
         </div>

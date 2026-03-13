@@ -28,12 +28,14 @@ class PhishingGenerator:
         Generates a phishing email and saves it with metadata.
         """
         template = get_template(attack_type)
-        chain = LLMChain(llm=self.llm, prompt=template)
+        # Modern LangChain Expression Language (LCEL)
+        chain = template | self.llm
         
         print(f"Generating {attack_type} phishing email...")
         try:
-            # Generate the email
-            response = chain.run(params)
+            # Generate the email using modern invoke API
+            response_obj = chain.invoke(params)
+            response = response_obj.content if hasattr(response_obj, 'content') else str(response_obj)
             
             # Metadata for Step 4
             metadata = {

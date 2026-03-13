@@ -67,6 +67,52 @@ def run_scan():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/export_report')
+def export_report():
+    """
+    Generates a structured text report for dissertation purposes.
+    """
+    results_file = "data/defense_analysis_v1.jsonl"
+    if not os.path.exists(results_file):
+        return "No results found. Please run a scan first.", 404
+        
+    data = []
+    with open(results_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            data.append(json.loads(line))
+            
+    if not data:
+        return "Log file is empty.", 404
+
+    total = len(data)
+    alerts = len([d for d in data if d['status'] == 'ALERT'])
+    quarantine = len([d for d in data if d['status'] == 'QUARANTINE'])
+    pass_count = len([d for d in data if d['status'] == 'PASS'])
+    avg_risk = sum([d['final_risk_score'] for d in data]) / total
+    
+    report = f"--- PHISH-DEFENSE AI LAB REPORT ---\n"
+    report += f"Generated on: {data[-1]['timestamp']}\n\n"
+    report += f"[SUMMARY STATISTICS]\n"
+    report += f"- Total Samples: {total}\n"
+    report += f"- Detection Accuracy: {((alerts + quarantine) / total * 100):.1f}%\n"
+    report += f"- Average Risk Score: {avg_risk:.1f}\n\n"
+    report += f"[DETECTION BREAKDOWN]\n"
+    report += f"- Alerts (High Risk): {alerts}\n"
+    report += f"- Quarantine (Suspicious): {quarantine}\n"
+    report += f"- False Negatives (Miss): {pass_count}\n\n"
+    report += f"[DETAILED AUDIT LOG]\n"
+    
+    for entry in data:
+        report += f"[{entry['status']}] File: {entry['file']}\n"
+        report += f"   Sender: {entry['sender']} -> Recipient: {entry['recipient']}\n"
+        report += f"   Final Risk Score: {entry['final_risk_score']}\n"
+        report += f"   Heuristics: {', '.join(entry['heuristics']['findings'][:2])}...\n"
+        if entry.get('llm_analysis'):
+            report += f"   LLM Logic: {entry['llm_analysis']['analysis'][:100]}...\n"
+        report += "-"*50 + "\n"
+        
+    return report, 200, {'Content-Type': 'text/plain', 'Content-Disposition': 'attachment; filename=dissertation_lab_report.txt'}
+
 if __name__ == '__main__':
     # Ensure data dir exists
     os.makedirs("data", exist_ok=True)

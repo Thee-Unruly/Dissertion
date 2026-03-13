@@ -46,14 +46,18 @@ class LLMClassifier:
             input_variables=["subject", "body"],
             template=self.DETECTION_PROMPT
         )
-        self.chain = LLMChain(llm=self.llm, prompt=self.prompt)
+        # Modern LangChain Expression Language (LCEL)
+        self.chain = self.prompt | self.llm
 
     def analyze(self, subject, body):
         """
         Runs the LLM analysis and returns the parsed JSON result.
         """
         try:
-            response_text = self.chain.run(subject=subject, body=body)
+            # Use invoke for modern compatibility
+            response = self.chain.invoke({"subject": subject, "body": body})
+            response_text = response.content if hasattr(response, 'content') else str(response)
+            
             # Find JSON block in case LLM adds chat filler around it
             if "{" in response_text and "}" in response_text:
                 json_str = response_text[response_text.find("{"):response_text.rfind("}")+1]
