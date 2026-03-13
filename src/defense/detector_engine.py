@@ -77,6 +77,8 @@ class DetectorEngine:
                 "file": filename,
                 "sender": sender,
                 "recipient": recipient,
+                "subject": subject,
+                "body": body,
                 "original_metadata": email_data.get("metadata", {}),
                 "heuristics": h_results,
                 "behavioral": {
