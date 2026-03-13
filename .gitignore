@@ -10,3 +10,5 @@ data/
 *.csv
 *.log
 !data/.gitkeep
+
+/venv

@@ -1,0 +1,102 @@
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+import os
+
+def create_defense_report():
+    doc = Document()
+
+    # --- STYLE SETUP ---
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Calibri'
+    font.size = Pt(11)
+
+    # --- TITLE ---
+    title = doc.add_heading('Technical Implementation Report: Defensive Detection Module', 0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    # --- 1. EXECUTIVE SUMMARY ---
+    doc.add_heading('1. Executive Summary', level=1)
+    doc.add_paragraph(
+        "This document details the development of the Defensive Detection Module, the proactive counterpart to the "
+        "Offensive Phishing Module. The system implements a multi-layered 'Zero Trust' pipeline designed to analyze "
+        "incoming communications within the research sandbox. By combining high-speed deterministic heuristics with "
+        "LLM-powered social engineering analysis, the module provides a comprehensive framework for identifying "
+        "sophisticated spear-phishing attacks."
+    )
+
+    # --- 2. SYSTEM ARCHITECTURE ---
+    doc.add_heading('2. System Architecture', level=1)
+    doc.add_paragraph(
+        "The defensive infrastructure is built to evaluate samples along two distinct dimensions: pattern recognition "
+        "and cognitive intent analysis."
+    )
+
+    # 2.1 Heuristic Threat Profiling
+    doc.add_heading('2.1 Heuristic Threat Profiling (src/defense/heuristic_analyzer.py)', level=2)
+    doc.add_paragraph(
+        "The first layer of defense performs deterministic analysis of the email's structure and content. "
+        "This layer is optimized for speed and low-cost detection of known red flags."
+    )
+    doc.add_paragraph("Key Checks:", style='Heading 2')
+    doc.add_paragraph("• Urgency Scoring: Regex-based detection of 15+ high-pressure keywords.", style='List Bullet')
+    doc.add_paragraph("• Authority Spoofing: Flags language designed to impersonate HR, IT, or Management.", style='List Bullet')
+    doc.add_paragraph("• Link Profiling: Identifies typo-squatting, subdomain abuse, and non-corporate TLDs.", style='List Bullet')
+
+    # 2.2 LLM-Powered Intent Analysis
+    doc.add_heading('2.2 LLM-Powered Intent Analysis (src/defense/llm_classifier.py)', level=2)
+    doc.add_paragraph(
+        "Utilizing the Llama-3-70b model, this module acts as a virtual Security Analyst. It reads the email to "
+        "understand the underlying 'Social Engineering' strategy rather than just looking for keywords."
+    )
+    doc.add_paragraph("Analysis Framework:", style='Heading 2')
+    doc.add_paragraph("• Psychological Trigger Mapping: Identifies use of Fear, Curiosity, or Authority.", style='List Bullet')
+    doc.add_paragraph("• Tactical Evaluation: Explains the 'why' behind the phishing attempt in natural language.", style='List Bullet')
+
+    # 2.3 Hybrid Orchestration
+    doc.add_heading('2.3 Hybrid Orchestration (src/defense/detector_engine.py)', level=2)
+    doc.add_paragraph(
+        "The Detector Engine synchronizes the heuristic and LLM results. It assigns a unified 'Risk Score' (0-100) and "
+        "triggers an automated classification status (PASS, QUARANTINE, or ALERT)."
+    )
+
+    # 2.4 Audit & Evidence Logging
+    doc.add_heading('2.4 Audit & Evidence Logging', level=2)
+    doc.add_paragraph(
+        "For scientific evaluation, all detection events are logged in a structured JSONL format "
+        "(data/defense_analysis_v1.jsonl). This includes the model's reasoning, detected tactics, and timestamps, "
+        "enabling a direct comparison between offensive intent and defensive interpretation."
+    )
+
+    # --- 3. SPECIALIZED DETECTION LOGIC ---
+    doc.add_heading('3. Specialized Detection Logic', level=1)
+    
+    doc.add_heading('3.1 Link & Brand Authenticity', level=2)
+    doc.add_paragraph(
+        "A dedicated module cross-references embedded URLs against the target organization's known domains (e.g., enron.com). "
+        "It flags any link containing 'brand keywords' that does not resolve to the official root domain, effectively "
+        "catching typo-squatting attacks."
+    )
+
+    doc.add_heading('3.2 Contextual Anomaly Detection', level=2)
+    doc.add_paragraph(
+        "The LLM classifier checks the 'corporate logic' of the request. For example, it flags requests for payroll "
+        "updates sent from non-HR domains or time-sensitive security alerts that bypass standard IT SOPs."
+    )
+
+    # --- 4. CURRENT STATUS ---
+    doc.add_heading('4. Current Status & Next Steps', level=1)
+    doc.add_paragraph(
+        "The Defensive Module is 100% complete and integrated with the project sandbox. The next research phase "
+        "involves a formal 'Adversarial Benchmarking' session, where the detector's False Positive and True Positive "
+        "rates will be measured against the variable attacks generated by the Offensive Module."
+    )
+
+    # Save
+    output_path = "Defensive_Module_Implementation_Detailed.docx"
+    doc.save(output_path)
+    print(f"Defensive report successfully saved to {os.path.abspath(output_path)}")
+
+if __name__ == "__main__":
+    create_defense_report()
