@@ -1,0 +1,12 @@
+# Python common
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Project specific
+data/
+*.csv
+*.log
+!data/.gitkeep
