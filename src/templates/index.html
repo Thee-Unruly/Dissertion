@@ -425,26 +425,63 @@
 
         <!-- EVALUATION VIEW -->
         <div id="view-eval" class="view-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Overall Accuracy</div>
+                    <div class="stat-value" id="m-acc">--%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Risk Score</div>
+                    <div class="stat-value" id="m-risk">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Missed Attacks</div>
+                    <div class="stat-value" id="m-missed" style="color: var(--alert-red);">--</div>
+                </div>
+            </div>
+
             <div class="eval-grid">
                 <div class="card">
-                    <div class="card-title">Detection Performance</div>
-                    <div id="eval-metrics" style="padding: 1rem;">
-                        <div class="finding-item">
-                            <span class="finding-label">Overall Accuracy</span>
-                            <div id="m-acc" style="font-size: 1.5rem; font-family: 'Orbitron';">--%</div>
+                    <div class="card-title">Detection Breakdown</div>
+                    <div style="padding: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <span>High Risk (Alert)</span>
+                            <span id="b-alert" style="color: var(--alert-red); font-weight: bold;">--</span>
                         </div>
-                        <div class="finding-item">
-                            <span class="finding-label">Avg Risk Score</span>
-                            <div id="m-risk" style="font-size: 1.5rem; font-family: 'Orbitron';">--</div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <span>Suspicious (Quarantine)</span>
+                            <span id="b-quarantine" style="color: var(--warn-gold); font-weight: bold;">--</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Safe (Pass)</span>
+                            <span id="b-pass" style="color: var(--safe-green); font-weight: bold;">--</span>
                         </div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-title">Scientific Contribution</div>
-                    <div id="eval-insight" style="font-size: 0.9rem; line-height: 1.6; color: #ccc;">
-                        The system is analyzing the correlation between adversarial tone (High vs Low Urgency) and
-                        detector confidence.
+                    <div class="card-title">Analysis Method Bias</div>
+                    <div style="padding: 1rem;">
+                        <div class="finding-item">
+                            <span class="finding-label">Avg Heuristic Confidence</span>
+                            <div id="bias-h" style="font-size: 1.2rem;">--</div>
+                        </div>
+                        <div class="finding-item" style="border-left-color: var(--eval-glow);">
+                            <span class="finding-label" style="color: var(--eval-glow);">Avg LLM Detection Depth</span>
+                            <div id="bias-l" style="font-size: 1.2rem; color: var(--eval-glow);">--</div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-title">Scientific Contribution</div>
+                <div id="eval-insight"
+                    style="font-size: 0.95rem; line-height: 1.6; color: #ccc; column-count: 2; column-gap: 2rem;">
+                    The system is currently evaluating the <strong>Adversarial Gap</strong>—the difference between
+                    automated pattern recognition (heuristics) and semantic understanding (LLM).
+                    Preliminary data suggests that high-urgency tones trigger stronger heuristic flags, while
+                    passive-aggressive tones require deep behavioral analysis to detect anomalies
+                    in communication frequency and hierarchy.
                 </div>
             </div>
         </div>
@@ -539,11 +576,34 @@
 
         function updateEvalView() {
             if (currentDefenseData.length === 0) return;
-            const alerts = currentDefenseData.filter(d => d.status !== 'PASS').length;
-            const avgRisk = currentDefenseData.reduce((acc, curr) => acc + curr.final_risk_score, 0) / currentDefenseData.length;
 
-            document.getElementById('m-acc').innerText = (alerts / currentDefenseData.length * 100).toFixed(1) + '%';
+            const total = currentDefenseData.length;
+            const alerts = currentDefenseData.filter(d => d.status === 'ALERT').length;
+            const quarantine = currentDefenseData.filter(d => d.status === 'QUARANTINE').length;
+            const pass = currentDefenseData.filter(d => d.status === 'PASS').length;
+
+            const accuracy = ((alerts + quarantine) / total * 100).toFixed(1);
+            const avgRisk = currentDefenseData.reduce((acc, curr) => acc + curr.final_risk_score, 0) / total;
+
+            // Bias Metrics
+            const hScores = currentDefenseData.map(d => d.heuristics.score);
+            const avgH = (hScores.reduce((a, b) => a + b, 0) / total).toFixed(1);
+
+            const lEntries = currentDefenseData.filter(d => d.llm_analysis);
+            const avgL = lEntries.length > 0
+                ? (lEntries.reduce((acc, curr) => acc + curr.llm_analysis.risk_score, 0) / lEntries.length).toFixed(1)
+                : "N/A";
+
+            document.getElementById('m-acc').innerText = accuracy + '%';
             document.getElementById('m-risk').innerText = avgRisk.toFixed(1);
+            document.getElementById('m-missed').innerText = pass;
+
+            document.getElementById('b-alert').innerText = alerts;
+            document.getElementById('b-quarantine').innerText = quarantine;
+            document.getElementById('b-pass').innerText = pass;
+
+            document.getElementById('bias-h').innerText = avgH;
+            document.getElementById('bias-l').innerText = avgL;
         }
 
         function showDetail(item, element) {
