@@ -326,13 +326,42 @@
         </header>
 
         <div class="nav-tabs">
-            <div class="nav-tab active" onclick="switchView('defense')">Blue Team (Defense)</div>
-            <div class="nav-tab" onclick="switchView('offense')">Red Team (Offense)</div>
+            <div class="nav-tab active" onclick="switchView('offense')">Red Team (Offense)</div>
+            <div class="nav-tab" onclick="switchView('defense')">Blue Team (Defense)</div>
             <div class="nav-tab" onclick="switchView('eval')">Lab Evaluation</div>
         </div>
 
+        <!-- RED TEAM VIEW -->
+        <div id="view-offense" class="view-section active">
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-title">Offensive Generation Log</div>
+                    <div class="email-list" id="offense-list"></div>
+                </div>
+
+                <div class="card detail-view" id="offense-detail-card">
+                    <div class="card-title">Offense Intelligence</div>
+                    <div id="no-offense-detail" style="text-align: center; color: #888; padding: 3rem;">
+                        Select an attack sample to view full content
+                    </div>
+                    <div id="offense-detail-content" style="display: none;">
+                        <div class="finding-item" style="border-left-color: var(--off-glow);">
+                            <span class="finding-label" style="color: var(--off-glow);">Attack Strategy</span>
+                            <div id="offense-strategy"></div>
+                        </div>
+                        <div class="finding-item" style="border-left-color: var(--off-glow);">
+                            <span class="finding-label" style="color: var(--off-glow);">Full Generated Email Body</span>
+                            <div id="offense-body"
+                                style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- BLUE TEAM VIEW -->
-        <div id="view-defense" class="view-section active">
+        <div id="view-defense" class="view-section">
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-label">Total Analyzed</div>
@@ -386,35 +415,6 @@
                         <div class="finding-item">
                             <span class="finding-label">Scanned Email Content</span>
                             <div id="blue-email-body"
-                                style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RED TEAM VIEW -->
-        <div id="view-offense" class="view-section">
-            <div class="main-content">
-                <div class="card">
-                    <div class="card-title">Offensive Generation Log</div>
-                    <div class="email-list" id="offense-list"></div>
-                </div>
-
-                <div class="card detail-view" id="offense-detail-card">
-                    <div class="card-title">Offense Intelligence</div>
-                    <div id="no-offense-detail" style="text-align: center; color: #888; padding: 3rem;">
-                        Select an attack sample to view full content
-                    </div>
-                    <div id="offense-detail-content" style="display: none;">
-                        <div class="finding-item" style="border-left-color: var(--off-glow);">
-                            <span class="finding-label" style="color: var(--off-glow);">Attack Strategy</span>
-                            <div id="offense-strategy"></div>
-                        </div>
-                        <div class="finding-item" style="border-left-color: var(--off-glow);">
-                            <span class="finding-label" style="color: var(--off-glow);">Full Generated Email Body</span>
-                            <div id="offense-body"
                                 style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
                             </div>
                         </div>
