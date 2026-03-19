@@ -163,19 +163,28 @@
         let results = [];
         let unscanned = [];
         let currentTab = 'inbox';
+        let refreshInterval = null;
 
         async function loadAll() {
-            document.getElementById('main-loader').style.display = 'block';
+            // Only show loader on manual refresh
+            if (!refreshInterval) document.getElementById('main-loader').style.display = 'block';
+            
             try {
-                const res1 = await fetch('/api/results');
-                results = await res1.json();
+                // Fetch both concurrently
+                const [res1, res2] = await Promise.all([
+                    fetch('/api/results').then(r => r.json()),
+                    fetch('/api/inbox').then(r => r.json())
+                ]);
                 
-                const res2 = await fetch('/api/inbox');
-                unscanned = await res2.json();
+                results = res1;
+                unscanned = res2;
                 
                 renderActiveTab();
-            } catch (e) { console.error(e); }
-            finally { document.getElementById('main-loader').style.display = 'none'; }
+            } catch (e) { 
+                console.error("Data sync error:", e); 
+            } finally { 
+                document.getElementById('main-loader').style.display = 'none'; 
+            }
         }
 
         function switchTab(tab) {
@@ -191,29 +200,40 @@
             list.innerHTML = '';
             
             let dataToShow = [];
+            
             if (currentTab === 'inbox') {
-                dataToShow = results;
+                // Combine results (scanned) and unscanned
+                const markedUnscanned = unscanned.map(u => ({...u, isPending: true}));
+                dataToShow = [...results, ...markedUnscanned];
             } else if (currentTab === 'spam') {
                 dataToShow = results.filter(r => r.status === 'ALERT');
             } else if (currentTab === 'unscanned') {
-                dataToShow = unscanned;
+                dataToShow = unscanned.map(u => ({...u, isPending: true}));
             }
 
-            [...dataToShow].reverse().forEach(item => {
+            // Sort by unique timestamp or string (newest first)
+            dataToShow.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+
+            dataToShow.forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'email-row';
+                if (item.isPending) row.style.opacity = '0.7';
                 row.onclick = () => showDetail(item);
                 
-                const senderName = item.sender.split('<')[0].replace(/"/g, '').trim() || item.sender;
-                const snippet = item.body || item.heuristics?.findings[0] || '';
+                const senderFull = item.sender || "Unknown Sender";
+                const senderName = senderFull.split('<')[0].replace(/"/g, '').trim() || senderFull;
+                const snippet = item.isPending ? "Analyzing email content..." : (item.body || (item.heuristics?.findings ? item.heuristics.findings[0] : ""));
+                const statusIcon = item.isPending ? "schedule" : (item.status === 'ALERT' ? "report" : "verified_user");
+                const iconColor = item.isPending ? "#888" : (item.status === 'ALERT' ? "var(--gmail-red)" : "#1e8e3e");
                 
                 row.innerHTML = `
+                    <div style="width: 40px; display: flex; align-items: center;"><span class="material-icons" style="font-size: 18px; color: ${iconColor}">${statusIcon}</span></div>
                     <div class="sender">${senderName}</div>
                     <div class="subject">
                         <span>${item.subject}</span> - 
-                        <span class="snippet">${snippet.substring(0, 100)}...</span>
+                        <span class="snippet">${snippet.substring(0, 80)}...</span>
                     </div>
-                    <div class="date">${item.timestamp?.split('_')[0] || 'Today'}</div>
+                    <div class="date">${item.timestamp?.split('_')[0] || 'Recent'}</div>
                 `;
                 list.appendChild(row);
             });
@@ -258,7 +278,7 @@
         }
 
         async function runBatch() {
-            if(!confirm("Generate 10 new random emails (5 phishing, 5 benign)?")) return;
+            if(!confirm("Generate 10 new emails with a randomized mixture of phishing and benign samples?")) return;
             document.getElementById('main-loader').style.display = 'block';
             await fetch('/api/run_offense?batch=10', {method: 'POST'});
             loadAll();
@@ -271,6 +291,8 @@
         }
 
         loadAll();
+        // Set up background refresh every 5 seconds
+        refreshInterval = setInterval(loadAll, 5000);
     </script>
 </body>
 </html>

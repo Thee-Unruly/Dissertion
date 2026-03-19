@@ -585,29 +585,38 @@
             if (currentDefenseData.length === 0) return;
 
             const total = currentDefenseData.length;
-            const alerts = currentDefenseData.filter(d => d.status === 'ALERT').length;
-            const quarantine = currentDefenseData.filter(d => d.status === 'QUARANTINE').length;
-            const pass = currentDefenseData.filter(d => d.status === 'PASS').length;
+            
+            // Scientific Metrics using Ground Truth Metadata
+            const phishSamples = currentDefenseData.filter(d => d.original_metadata?.type === 'phishing');
+            const benignSamples = currentDefenseData.filter(d => d.original_metadata?.type === 'benign');
+            
+            // True Positives: Phish caught as ALERT/QUARANTINE
+            const tp = phishSamples.filter(d => d.status !== 'PASS').length;
+            // False Negatives: Phish that got PASS (The real "Missed Attacks")
+            const fn = phishSamples.filter(d => d.status === 'PASS').length;
+            // True Negatives: Benign correctly PASSED
+            const tn = benignSamples.filter(d => d.status === 'PASS').length;
+            // False Positives: Benign incorrectly flagged
+            const fp = benignSamples.filter(d => d.status !== 'PASS').length;
 
-            const accuracy = ((alerts + quarantine) / total * 100).toFixed(1);
+            const accuracy = ((tp + tn) / total * 100).toFixed(1);
+            const recall = phishSamples.length > 0 ? (tp / phishSamples.length * 100).toFixed(1) : "N/A";
             const avgRisk = currentDefenseData.reduce((acc, curr) => acc + curr.final_risk_score, 0) / total;
 
-            // Bias Metrics
+            document.getElementById('m-acc').innerText = accuracy + '%';
+            document.getElementById('m-risk').innerText = avgRisk.toFixed(1);
+            document.getElementById('m-missed').innerText = fn; // Only show actually missed phishing
+
+            document.getElementById('b-alert').innerText = currentDefenseData.filter(d => d.status === 'ALERT').length;
+            document.getElementById('b-quarantine').innerText = currentDefenseData.filter(d => d.status === 'QUARANTINE').length;
+            document.getElementById('b-pass').innerText = currentDefenseData.filter(d => d.status === 'PASS').length;
+
             const hScores = currentDefenseData.map(d => d.heuristics.score);
             const avgH = (hScores.reduce((a, b) => a + b, 0) / total).toFixed(1);
-
             const lEntries = currentDefenseData.filter(d => d.llm_analysis);
             const avgL = lEntries.length > 0
                 ? (lEntries.reduce((acc, curr) => acc + curr.llm_analysis.risk_score, 0) / lEntries.length).toFixed(1)
                 : "N/A";
-
-            document.getElementById('m-acc').innerText = accuracy + '%';
-            document.getElementById('m-risk').innerText = avgRisk.toFixed(1);
-            document.getElementById('m-missed').innerText = pass;
-
-            document.getElementById('b-alert').innerText = alerts;
-            document.getElementById('b-quarantine').innerText = quarantine;
-            document.getElementById('b-pass').innerText = pass;
 
             document.getElementById('bias-h').innerText = avgH;
             document.getElementById('bias-l').innerText = avgL;
