@@ -1,7 +1,12 @@
 import os
+import sys
 import json
 import pandas as pd
 from datetime import datetime
+
+# Add project root to path
+sys.path.append(os.getcwd())
+
 from src.defense.heuristic_analyzer import HeuristicAnalyzer
 from src.defense.llm_classifier import LLMClassifier
 from src.defense.behavioral_baseline import BehavioralBaseline

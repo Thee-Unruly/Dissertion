@@ -36,7 +36,7 @@ def run_named_batch(phish_count=5, benign_count=5, inbox_dir="data/mock_inbox/")
     phish_targets = df.sample(n=phish_count)
     tones = ["High Urgency", "Low Urgency", "Passive-Aggressive"]
     
-    for _, row in phish_targets.iterrows():
+    for i, (_, row) in enumerate(phish_targets.iterrows()):
         tone = random.choice(tones)
         target_name = row['X-From'].split('<')[0].strip()
         phishing_url = generate_obfuscated_url("enron.com")
@@ -51,8 +51,8 @@ def run_named_batch(phish_count=5, benign_count=5, inbox_dir="data/mock_inbox/")
         }
         
         body = generator.generate("spear_phishing", params)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-        filename = f"phish_{timestamp}.json"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"phish_{timestamp}_{i}.json"
         
         email_data = {
             "sender": "security-alerts@enron-internal.com",
@@ -72,9 +72,9 @@ def run_named_batch(phish_count=5, benign_count=5, inbox_dir="data/mock_inbox/")
     print(f"Sampling {benign_count} benign emails...")
     benign_samples = df.sample(n=benign_count)
     
-    for _, row in benign_samples.iterrows():
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-        filename = f"benign_{timestamp}.json"
+    for i, (_, row) in enumerate(benign_samples.iterrows()):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"benign_{timestamp}_{i}.json"
         
         email_data = {
             "sender": row['X-From'],
