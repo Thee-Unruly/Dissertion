@@ -15,6 +15,11 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/sandbox')
+def sandbox():
+    """renders the Gmail-style sandbox UI"""
+    return render_template('sandbox.html')
+
 @app.route('/api/results')
 def get_results():
     results_file = "data/defense_analysis_v1.jsonl"
@@ -41,15 +46,46 @@ def get_offense_logs():
                     continue
     return jsonify(data)
 
+@app.route('/api/inbox')
+def get_inbox():
+    """Lists raw emails in the mock inbox waiting for scanning."""
+    inbox_dir = "data/mock_inbox/"
+    emails = []
+    if os.path.exists(inbox_dir):
+        for filename in os.listdir(inbox_dir):
+            if filename.endswith(".json"):
+                with open(os.path.join(inbox_dir, filename), 'r') as f:
+                    try:
+                        mail = json.load(f)
+                        emails.append({
+                            "id": filename,
+                            "sender": mail.get("sender"),
+                            "subject": mail.get("subject"),
+                            "body": mail.get("body", "")[:50] + "...",
+                            "timestamp": mail.get("timestamp")
+                        })
+                    except:
+                        continue
+    return jsonify(emails)
+
 @app.route('/api/run_offense', methods=['POST'])
 def run_offense():
     """
     Triggers the generation of new phishing emails.
+    Supports ?batch=X parameter for experiment control.
     """
     try:
-        from src.main_orchestrator import run_experiment
-        run_experiment()
-        return jsonify({"status": "success"})
+        batch_size = request.args.get('batch', 1, type=int)
+        
+        # If batch > 1, use the detailed experiment script
+        if batch_size > 1:
+            from src.run_batch_experiment import run_named_batch
+            run_named_batch(phish_count=batch_size//2, benign_count=batch_size//2)
+        else:
+            from src.main_orchestrator import run_experiment
+            run_experiment(limit_targets=1)
+            
+        return jsonify({"status": "success", "batch": batch_size})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
