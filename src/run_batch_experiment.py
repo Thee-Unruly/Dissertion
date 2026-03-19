@@ -11,28 +11,32 @@ sys.path.append(os.getcwd())
 from src.generation.phishing_generator import PhishingGenerator
 from src.generation.url_obfuscator import generate_obfuscated_url
 
-def run_named_batch(phish_count=5, benign_count=5, inbox_dir="data/mock_inbox/"):
+def run_named_batch(total_count=10, phish_count=None, benign_count=None, inbox_dir="data/mock_inbox/"):
     """
-    Generates a balanced batch of emails for testing.
-    - phish_count: Number of AI-generated phishing emails.
-    - benign_count: Number of real Enron emails to use as 'good' samples.
+    Generates a batch of emails for testing. 
+    If counts are not provided, it randomizes the ratio for more organic results.
     """
     os.makedirs(inbox_dir, exist_ok=True)
     os.makedirs("data", exist_ok=True)
     
-    # Load Enron data for samples
+    # Randomize ratio if not specified (e.g., 2 phish, 8 benign or 7 phish, 3 benign)
+    if phish_count is None or benign_count is None:
+        phish_count = random.randint(1, total_count - 1)
+        benign_count = total_count - phish_count
+
+    print(f"--- STARTING BATCH ({total_count} emails: {phish_count} phish, {benign_count} benign) ---")
+    
+    # Load Enron data
     df = pd.read_csv("data/processed_enron.csv")
-    
     generator = PhishingGenerator(model_name="llama-3.3-70b-versatile")
-    ground_truth = {}
     
-    # Load existing ground truth if it exists
+    ground_truth = {}
     if os.path.exists("data/ground_truth.json"):
         with open("data/ground_truth.json", "r") as f:
             ground_truth = json.load(f)
 
     # 1. Generate Phishing Emails
-    print(f"Generating {phish_count} phishing samples...")
+    print(f"Generating {phish_count} phishing variations...")
     phish_targets = df.sample(n=phish_count)
     tones = ["High Urgency", "Low Urgency", "Passive-Aggressive"]
     
@@ -69,7 +73,7 @@ def run_named_batch(phish_count=5, benign_count=5, inbox_dir="data/mock_inbox/")
         ground_truth[filename] = "malicious"
 
     # 2. Sample Benign Emails
-    print(f"Sampling {benign_count} benign emails...")
+    print(f"Sampling {benign_count} benign Enron emails...")
     benign_samples = df.sample(n=benign_count)
     
     for i, (_, row) in enumerate(benign_samples.iterrows()):
@@ -90,11 +94,10 @@ def run_named_batch(phish_count=5, benign_count=5, inbox_dir="data/mock_inbox/")
         
         ground_truth[filename] = "benign"
 
-    # Save Ground Truth
     with open("data/ground_truth.json", "w") as f:
         json.dump(ground_truth, f, indent=4)
         
-    print(f"Batch generation complete. 10 emails added to {inbox_dir}")
+    print(f"Batch generation complete. {total_count} emails added to {inbox_dir}")
 
 if __name__ == "__main__":
-    run_named_batch(5, 5)
+    run_named_batch(10)

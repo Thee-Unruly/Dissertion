@@ -80,7 +80,7 @@ def run_offense():
         # If batch > 1, use the detailed experiment script
         if batch_size > 1:
             from src.run_batch_experiment import run_named_batch
-            run_named_batch(phish_count=batch_size//2, benign_count=batch_size//2)
+            run_named_batch(total_count=batch_size)
         else:
             from src.main_orchestrator import run_experiment
             run_experiment(limit_targets=1)
