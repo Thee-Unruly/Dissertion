@@ -70,7 +70,7 @@ class DetectorEngine:
                 recipient = str(email_data.get("recipient", "unknown"))
                 is_normal = self.behavioral_baseline.check_relationship(sender, recipient)
                 
-                bh_score = 0 if is_normal == 1.0 else 30 
+                bh_score = 0 if is_normal == 1.0 else 100 
                 bh_finding = f"Behavioral Anomaly: Unseen communication pair ({sender} -> {recipient})" if bh_score > 0 else "Normal: Established communication pair."
 
                 # 3. LLM Analysis (Optional)
