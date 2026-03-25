@@ -222,7 +222,7 @@
                 
                 const senderFull = item.sender || "Unknown Sender";
                 const senderName = senderFull.split('<')[0].replace(/"/g, '').trim() || senderFull;
-                const snippet = item.isPending ? "Analyzing email content..." : (item.body || (item.heuristics?.findings ? item.heuristics.findings[0] : ""));
+                const snippet = item.isPending ? "Analyzing email content..." : (item.body || (item.heuristics?.findings?.length ? item.heuristics.findings[0] : "No preview available"));
                 const statusIcon = item.isPending ? "schedule" : (item.status === 'ALERT' ? "report" : "verified_user");
                 const iconColor = item.isPending ? "#888" : (item.status === 'ALERT' ? "var(--gmail-red)" : "#1e8e3e");
                 
