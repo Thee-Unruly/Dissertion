@@ -51,64 +51,66 @@ class DetectorEngine:
         analysis_report = []
 
         for filename in files:
-            file_path = os.path.join(self.inbox_path, filename)
-            with open(file_path, "r") as f:
-                email_data = json.load(f)
+            try:
+                file_path = os.path.join(self.inbox_path, filename)
+                with open(file_path, "r") as f:
+                    email_data = json.load(f)
 
-            subject = email_data.get("subject", "")
-            body = email_data.get("body", "")
-            
-            print(f"Analyzing: {subject[:50]}...")
+                # Ensure string types for analysis to avoid subscriptable errors
+                subject = str(email_data.get("subject", ""))
+                body = str(email_data.get("body", ""))
+                
+                print(f"Analyzing: {subject[:50]}...")
 
-            # 1. Heuristic Analysis
-            h_results = self.heuristic_analyzer.analyze(subject, body)
-            
-            # 2. Behavioral Analysis
-            sender = email_data.get("sender", "unknown")
-            recipient = email_data.get("recipient", "unknown")
-            is_normal = self.behavioral_baseline.check_relationship(sender, recipient)
-            
-            bh_score = 0 if is_normal == 1.0 else 30 # Add 30 points if the relationship is new/unseen
-            bh_finding = f"Behavioral Anomaly: Unseen communication pair ({sender} -> {recipient})" if bh_score > 0 else "Normal: Established communication pair."
+                # 1. Heuristic Analysis
+                h_results = self.heuristic_analyzer.analyze(subject, body)
+                
+                # 2. Behavioral Analysis
+                sender = str(email_data.get("sender", "unknown"))
+                recipient = str(email_data.get("recipient", "unknown"))
+                is_normal = self.behavioral_baseline.check_relationship(sender, recipient)
+                
+                bh_score = 0 if is_normal == 1.0 else 30 
+                bh_finding = f"Behavioral Anomaly: Unseen communication pair ({sender} -> {recipient})" if bh_score > 0 else "Normal: Established communication pair."
 
-            # 3. LLM Analysis (Optional)
-            l_results = None
-            if use_llm:
-                l_results = self.llm_classifier.analyze(subject, body)
+                # 3. LLM Analysis (Optional)
+                l_results = None
+                if use_llm:
+                    l_results = self.llm_classifier.analyze(subject, body)
 
-            # Combined Result
-            entry = {
-                "timestamp": datetime.now().isoformat(),
-                "file": filename,
-                "sender": sender,
-                "recipient": recipient,
-                "subject": subject,
-                "body": body,
-                "original_metadata": email_data.get("metadata", {}),
-                "heuristics": h_results,
-                "behavioral": {
-                    "score": bh_score,
-                    "finding": bh_finding
-                },
-                "llm_analysis": l_results
-            }
-            
-            # Simple voting logic for a final "Alert" decision
-            h_score = h_results['score']
-            l_score = l_results['risk_score'] if l_results else 0
-            
-            # Weigh LLM, Heuristics and Behavior
-            # Logic: 30% Heuristics, 30% Behavior, 40% LLM if available
-            if use_llm:
-                combined_score = (h_score * 0.3 + bh_score * 0.3 + l_score * 0.4)
-            else:
-                combined_score = (h_score * 0.5 + bh_score * 0.5)
-            
-            entry["final_risk_score"] = min(combined_score, 100)
-            entry["status"] = "ALERT" if combined_score >= 50 else "QUARANTINE" if combined_score >= 30 else "PASS"
+                # Combined Result
+                entry = {
+                    "timestamp": datetime.now().isoformat(),
+                    "file": filename,
+                    "sender": sender,
+                    "recipient": recipient,
+                    "subject": subject,
+                    "body": body,
+                    "original_metadata": email_data.get("metadata", {}),
+                    "heuristics": h_results,
+                    "behavioral": {
+                        "score": bh_score,
+                        "finding": bh_finding
+                    },
+                    "llm_analysis": l_results
+                }
+                
+                h_score = h_results['score']
+                l_score = l_results['risk_score'] if l_results else 0
+                
+                if use_llm:
+                    combined_score = (h_score * 0.3 + bh_score * 0.3 + l_score * 0.4)
+                else:
+                    combined_score = (h_score * 0.5 + bh_score * 0.5)
+                
+                entry["final_risk_score"] = min(combined_score, 100)
+                entry["status"] = "ALERT" if combined_score >= 50 else "QUARANTINE" if combined_score >= 30 else "PASS"
 
-            analysis_report.append(entry)
-            self._log_result(entry)
+                analysis_report.append(entry)
+                self._log_result(entry)
+            except Exception as loop_e:
+                print(f"Skipping malformed file {filename}: {loop_e}")
+                continue
 
         print(f"\nScan complete. Analyzed {len(analysis_report)} emails.")
         return analysis_report

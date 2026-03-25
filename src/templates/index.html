@@ -10,15 +10,23 @@
         rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #05070a;
-            --accent-glow: #00f2ff;
-            --off-glow: #ffcc00;
-            --eval-glow: #00ff99;
-            --alert-red: #ff3366;
-            --warn-gold: #ffcc00;
-            --safe-green: #00ff99;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg-deep: #f8fafc;
+            --accent-glow: #3b82f6;
+            --off-glow: #f97316;
+            --eval-glow: #10b981;
+            --alert-red: #ef4444;
+            --warn-gold: #f59e0b;
+            --safe-green: #10b981;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(203, 213, 225, 0.5);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --list-bg: rgba(0, 0, 0, 0.02);
+            --list-hover: rgba(0, 0, 0, 0.04);
+            --list-active: rgba(59, 130, 246, 0.08);
+            --code-bg: rgba(0, 0, 0, 0.05);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
 
         * {
@@ -29,12 +37,12 @@
 
         body {
             background: var(--bg-deep);
-            color: #fff;
+            color: var(--text-main);
             font-family: 'Outfit', sans-serif;
             overflow-x: hidden;
             background-image:
-                radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(255, 51, 102, 0.05) 0%, transparent 40%);
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(249, 115, 22, 0.08) 0%, transparent 40%);
             min-height: 100vh;
         }
 
@@ -54,14 +62,14 @@
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: var(--shadow);
         }
 
         h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.5rem;
             letter-spacing: 2px;
-            background: linear-gradient(to right, var(--accent-glow), #fff);
+            background: linear-gradient(to right, var(--accent-glow), var(--text-main));
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -96,7 +104,7 @@
         }
 
         .stat-label {
-            color: #888;
+            color: var(--text-muted);
             text-transform: uppercase;
             font-size: 0.8rem;
             letter-spacing: 1px;
@@ -127,7 +135,7 @@
         .scan-btn {
             background: linear-gradient(45deg, #00f2ff, #0072ff);
             border: none;
-            color: #fff;
+            color: var(--text-main);
             padding: 0.8rem 1.5rem;
             border-radius: 12px;
             font-family: 'Orbitron', sans-serif;
@@ -149,7 +157,7 @@
 
         .email-item {
             padding: 1.2rem;
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--list-bg);
             border-radius: 12px;
             margin-bottom: 1rem;
             border: 1px solid transparent;
@@ -158,13 +166,13 @@
         }
 
         .email-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--list-hover);
             border-color: var(--glass-border);
         }
 
         .email-item.active {
             border-color: var(--accent-glow);
-            background: rgba(0, 242, 255, 0.05);
+            background: rgba(59, 130, 246, 0.08);
         }
 
         .email-header {
@@ -210,17 +218,17 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 0.8rem;
             transition: 0.3s;
-            color: #888;
+            color: var(--text-muted);
         }
 
         .nav-tab.active {
             border-color: var(--accent-glow);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            color: var(--text-main);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
 
         .nav-tab:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.04);
         }
 
         .view-section {
@@ -299,8 +307,8 @@
             display: none;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
+            border: 3px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--text-main);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -343,7 +351,7 @@
 
                 <div class="card detail-view" id="offense-detail-card">
                     <div class="card-title">Offense Intelligence</div>
-                    <div id="no-offense-detail" style="text-align: center; color: #888; padding: 3rem;">
+                    <div id="no-offense-detail" style="text-align: center; color: var(--text-muted); padding: 3rem;">
                         Select an attack sample to view full content
                     </div>
                     <div id="offense-detail-content" style="display: none;">
@@ -354,7 +362,7 @@
                         <div class="finding-item" style="border-left-color: var(--off-glow);">
                             <span class="finding-label" style="color: var(--off-glow);">Full Generated Email Body</span>
                             <div id="offense-body"
-                                style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
+                                style="font-family: monospace; background: var(--code-bg); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
                             </div>
                         </div>
                     </div>
@@ -383,14 +391,14 @@
                 <div class="card">
                     <div class="card-title">
                         <span>Analysis Feed</span>
-                        <span id="feed-count" style="font-size: 0.8rem; color: #888;"></span>
+                        <span id="feed-count" style="font-size: 0.8rem; color: var(--text-muted);"></span>
                     </div>
                     <div class="email-list" id="email-list"></div>
                 </div>
 
                 <div class="card detail-view" id="detail-card">
                     <div class="card-title">Analysis Intelligence</div>
-                    <div id="no-detail" style="text-align: center; color: #888; padding: 3rem;">
+                    <div id="no-detail" style="text-align: center; color: var(--text-muted); padding: 3rem;">
                         Select an email to view deep forensics
                     </div>
                     <div id="detail-content" style="display: none;">
@@ -417,7 +425,7 @@
                         <div class="finding-item">
                             <span class="finding-label">Scanned Email Content</span>
                             <div id="blue-email-body"
-                                style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
+                                style="font-family: monospace; background: var(--code-bg); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
                             </div>
                         </div>
                     </div>
@@ -477,7 +485,7 @@
 
             <div class="card" style="margin-top: 2rem;">
                 <div class="card-title">Scientific Contribution</div>
-                <div id="eval-insight" style="font-size: 0.95rem; line-height: 1.6; color: #ccc;">
+                <div id="eval-insight" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-muted);">
                     <div style="column-count: 2; column-gap: 2rem; margin-bottom: 2rem;">
                         The system is currently evaluating the <strong>Adversarial Gap</strong>—the difference between
                         automated pattern recognition (heuristics) and semantic understanding (LLM).
@@ -545,7 +553,7 @@
                         <span style="font-weight: 600; color: var(--accent-glow);">${item.sender}</span>
                         <span class="status-badge status-${item.status}">${item.status}</span>
                     </div>
-                    <div style="font-size: 0.9rem; color: #ccc;">${item.heuristics.findings[0]?.substring(0, 60) || 'Pattern analysis complete'}...</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">${item.heuristics.findings[0]?.substring(0, 60) || 'Pattern analysis complete'}...</div>
                 `;
                 list.appendChild(div);
             });
@@ -562,9 +570,9 @@
                 div.innerHTML = `
                     <div class="email-header">
                         <span style="font-weight: 600; color: var(--off-glow);">${item.attack_type.toUpperCase()}</span>
-                        <span style="font-size: 0.7rem; color: #888;">Target: ${item.parameters.target_name}</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Target: ${item.parameters.target_name}</span>
                     </div>
-                    <div style="font-size: 0.9rem; color: #ccc;">Tone: ${item.parameters.tone_style || 'Default'}</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">Tone: ${item.parameters.tone_style || 'Default'}</div>
                 `;
                 list.appendChild(div);
             });
