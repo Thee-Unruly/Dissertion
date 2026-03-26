@@ -11,22 +11,22 @@
     <style>
         :root {
             --bg-deep: #f8fafc;
-            --accent-glow: #3b82f6;
-            --off-glow: #f97316;
-            --eval-glow: #10b981;
-            --alert-red: #ef4444;
-            --warn-gold: #f59e0b;
-            --safe-green: #10b981;
+            --accent-glow: #1d4ed8;
+            --off-glow: #c2410c;
+            --eval-glow: #059669;
+            --alert-red: #dc2626;
+            --warn-gold: #b45309;
+            --safe-green: #059669;
             --glass: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(203, 213, 225, 0.5);
+            --glass-border: rgba(148, 163, 184, 0.6);
             --text-main: #0f172a;
-            --text-muted: #64748b;
-            --text-light: #94a3b8;
+            --text-muted: #1e3a5f;
+            --text-light: #334155;
             --list-bg: rgba(0, 0, 0, 0.02);
-            --list-hover: rgba(0, 0, 0, 0.04);
-            --list-active: rgba(59, 130, 246, 0.08);
-            --code-bg: rgba(0, 0, 0, 0.05);
-            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            --list-hover: rgba(0, 0, 0, 0.06);
+            --list-active: rgba(29, 78, 216, 0.1);
+            --code-bg: rgba(0, 0, 0, 0.06);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
         }
 
         * {
@@ -106,8 +106,9 @@
         .stat-label {
             color: var(--text-muted);
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 1rem;
             letter-spacing: 1px;
+            font-weight: 600;
         }
 
         .main-content {
@@ -182,11 +183,12 @@
         }
 
         .status-badge {
-            padding: 0.2rem 0.6rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 6px;
-            font-size: 0.7rem;
+            font-size: 0.85rem;
             font-weight: 700;
             text-transform: uppercase;
+            color: #fff;
         }
 
         .status-ALERT {
@@ -216,9 +218,10 @@
             border-radius: 12px;
             cursor: pointer;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.95rem;
             transition: 0.3s;
-            color: var(--text-muted);
+            color: #1e3a5f;
+            font-weight: 600;
         }
 
         .nav-tab.active {
@@ -275,8 +278,9 @@
         .finding-item {
             margin-bottom: 1rem;
             padding-left: 1rem;
-            border-left: 2px solid var(--accent-glow);
-            font-size: 0.9rem;
+            border-left: 3px solid var(--accent-glow);
+            font-size: 1rem;
+            color: var(--text-main);
         }
 
         .finding-label {
@@ -324,7 +328,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>PHISH-DEFENSE AI <span style="font-size: 0.8rem; opacity: 0.5;">HUB v2.0</span></h1>
+            <h1>PHISH-DEFENSE AI <span style="font-size: 0.9rem; opacity: 0.8; color: #334155;">HUB v2.0</span></h1>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <div class="loader" id="loader"></div>
                 <button class="scan-btn" onclick="window.location.href='/sandbox'"
@@ -351,7 +355,7 @@
 
                 <div class="card detail-view" id="offense-detail-card">
                     <div class="card-title">Offense Intelligence</div>
-                    <div id="no-offense-detail" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    <div id="no-offense-detail" style="text-align: center; color: #1e3a5f; font-size: 1rem; font-weight: 500; padding: 3rem;">
                         Select an attack sample to view full content
                     </div>
                     <div id="offense-detail-content" style="display: none;">
@@ -362,7 +366,7 @@
                         <div class="finding-item" style="border-left-color: var(--off-glow);">
                             <span class="finding-label" style="color: var(--off-glow);">Full Generated Email Body</span>
                             <div id="offense-body"
-                                style="font-family: monospace; background: var(--code-bg); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
+                                style="font-family: monospace; background: var(--code-bg); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 1rem; color: #0f172a; margin-top: 1rem;">
                             </div>
                         </div>
                     </div>
@@ -391,14 +395,14 @@
                 <div class="card">
                     <div class="card-title">
                         <span>Analysis Feed</span>
-                        <span id="feed-count" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+                        <span id="feed-count" style="font-size: 0.95rem; color: #1e3a5f; font-weight: 600;"></span>
                     </div>
                     <div class="email-list" id="email-list"></div>
                 </div>
 
                 <div class="card detail-view" id="detail-card">
                     <div class="card-title">Analysis Intelligence</div>
-                    <div id="no-detail" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    <div id="no-detail" style="text-align: center; color: #1e3a5f; font-size: 1rem; font-weight: 500; padding: 3rem;">
                         Select an email to view deep forensics
                     </div>
                     <div id="detail-content" style="display: none;">
@@ -425,7 +429,7 @@
                         <div class="finding-item">
                             <span class="finding-label">Scanned Email Content</span>
                             <div id="blue-email-body"
-                                style="font-family: monospace; background: var(--code-bg); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.85rem; margin-top: 1rem;">
+                                style="font-family: monospace; background: var(--code-bg); padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 1rem; color: #0f172a; margin-top: 1rem;">
                             </div>
                         </div>
                     </div>
@@ -485,7 +489,7 @@
 
             <div class="card" style="margin-top: 2rem;">
                 <div class="card-title">Scientific Contribution</div>
-                <div id="eval-insight" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-muted);">
+                <div id="eval-insight" style="font-size: 1.05rem; line-height: 1.7; color: #0f172a;">
                     <div style="column-count: 2; column-gap: 2rem; margin-bottom: 2rem;">
                         The system is currently evaluating the <strong>Adversarial Gap</strong>—the difference between
                         automated pattern recognition (heuristics) and semantic understanding (LLM).
@@ -550,10 +554,10 @@
 
                 div.innerHTML = `
                     <div class="email-header">
-                        <span style="font-weight: 600; color: var(--accent-glow);">${item.sender}</span>
+                        <span style="font-weight: 700; font-size: 1rem; color: var(--accent-glow);">${item.sender}</span>
                         <span class="status-badge status-${item.status}">${item.status}</span>
                     </div>
-                    <div style="font-size: 0.9rem; color: var(--text-muted);">${item.heuristics.findings[0]?.substring(0, 60) || 'Pattern analysis complete'}...</div>
+                    <div style="font-size: 0.95rem; color: #1e3a5f; font-weight: 500; margin-top: 0.3rem;">${item.heuristics.findings[0]?.substring(0, 60) || 'Pattern analysis complete'}...</div>
                 `;
                 list.appendChild(div);
             });
@@ -569,10 +573,10 @@
                 div.onclick = () => showOffenseDetail(item, div);
                 div.innerHTML = `
                     <div class="email-header">
-                        <span style="font-weight: 600; color: var(--off-glow);">${item.attack_type.toUpperCase()}</span>
-                        <span style="font-size: 0.7rem; color: var(--text-muted);">Target: ${item.parameters.target_name}</span>
+                        <span style="font-weight: 700; font-size: 1rem; color: var(--off-glow);">${item.attack_type.toUpperCase()}</span>
+                        <span style="font-size: 0.9rem; color: #1e3a5f; font-weight: 600;">Target: ${item.parameters.target_name}</span>
                     </div>
-                    <div style="font-size: 0.9rem; color: var(--text-muted);">Tone: ${item.parameters.tone_style || 'Default'}</div>
+                    <div style="font-size: 0.95rem; color: #334155; font-weight: 500; margin-top: 0.3rem;">Tone: ${item.parameters.tone_style || 'Default'}</div>
                 `;
                 list.appendChild(div);
             });

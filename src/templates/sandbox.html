@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,81 +9,381 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
-            --gmail-red: #d93025;
+            --gmail-red: #b91c1c;
             --gmail-bg: #f6f8fc;
-            --sidebar-hover: #eaf1fb;
-            --sidebar-active: #d3e3fd;
-            --border: #f1f3f4;
-            --text-main: #202124;
-            --text-sub: #5f6368;
-            --alert-bg: #fce8e6;
-            --safe-bg: #e6f4ea;
+            --sidebar-hover: #dbeafe;
+            --sidebar-active: #bfdbfe;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-sub: #1e3a5f;
+            --alert-bg: #fee2e2;
+            --safe-bg: #dcfce7;
         }
 
-        * { margin:0; padding:0; box-sizing: border-box; }
-        body { font-family: 'Roboto', sans-serif; background: var(--gmail-bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--gmail-bg);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
         /* Top Header */
-        header { height: 64px; background: #fff; display: flex; align-items: center; padding: 0 1rem; border-bottom: 1px solid var(--border); }
-        .logo { display:flex; align-items:center; gap: 8px; font-size: 22px; color: var(--text-sub); width: 240px; }
-        .search-container { flex: 1; max-width: 720px; background: #f1f3f4; height: 48px; border-radius: 8px; display: flex; align-items: center; padding: 0 1rem; gap: 1rem; }
-        .search-container input { border:none; background:transparent; width:100%; font-size: 16px; outline:none; }
+        header {
+            height: 64px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            color: var(--text-main);
+            font-weight: 700;
+            width: 240px;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 720px;
+            background: #f1f3f4;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            gap: 1rem;
+        }
+
+        .search-container input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 16px;
+            outline: none;
+            color: var(--text-main);
+            font-weight: 500;
+        }
 
         /* Main Workspace */
-        .main-wrap { display: flex; flex: 1; overflow: hidden; }
+        .main-wrap {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
 
         /* Sidebar */
-        nav { width: 256px; padding: 8px; background: #fff; }
-        .compose-btn { background: #c2e7ff; color: #001d35; padding: 1.2rem; border-radius: 16px; display: flex; align-items:center; gap: 12px; margin-bottom: 1rem; cursor: pointer; transition: box-shadow 0.2s; font-weight: 500; }
-        .compose-btn:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        
-        .nav-item { display: flex; align-items: center; gap: 18px; padding: 8px 12px 8px 24px; border-radius: 0 24px 24px 0; cursor: pointer; color: var(--text-sub); margin-left: -8px; font-size: 14px; }
-        .nav-item:hover { background: var(--sidebar-hover); }
-        .nav-item.active { background: var(--sidebar-active); color: var(--text-main); font-weight: 700; }
-        .nav-item .material-icons { font-size: 20px; }
+        nav {
+            width: 256px;
+            padding: 8px;
+            background: #fff;
+        }
+
+        .compose-btn {
+            background: #c2e7ff;
+            color: #001d35;
+            padding: 1.2rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+            font-weight: 500;
+        }
+
+        .compose-btn:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 8px 12px 8px 24px;
+            border-radius: 0 24px 24px 0;
+            cursor: pointer;
+            color: #1e3a5f;
+            margin-left: -8px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .nav-item:hover {
+            background: var(--sidebar-hover);
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .nav-item .material-icons {
+            font-size: 20px;
+        }
+
+        .nav-item .nav-label {
+            flex: 1;
+        }
+
+        /* Badge count pill */
+        .nav-badge {
+            background: var(--gmail-red);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            margin-left: auto;
+        }
+
+        .nav-badge.badge-warn {
+            background: #d97706;
+        }
+
+        .nav-badge.badge-info {
+            background: #1e3a5f;
+        }
+
+        .nav-badge.badge-safe {
+            background: #1e8e3e;
+        }
 
         /* Email List */
-        .content { flex: 1; background: #fff; margin: 8px 8px 8px 0; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
-        .toolbar { padding: 8px 16px; display: flex; align-items: center; border-bottom: 1px solid var(--border); gap: 1rem; }
-        
-        .email-list { flex: 1; overflow-y: auto; }
-        .email-row { display: flex; align-items: center; padding: 0 16px; height: 40px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; transition: box-shadow 0.2s; }
-        .email-row:hover { box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); z-index: 1; }
-        .email-row .sender { width: 200px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .email-row .subject { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .email-row .snippet { color: var(--text-sub); font-weight: 400; }
-        .email-row .date { width: 80px; text-align: right; color: var(--text-sub); font-size: 12px; }
+        .content {
+            flex: 1;
+            background: #fff;
+            margin: 8px 8px 8px 0;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+        }
+
+        .email-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .email-row {
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            height: 48px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 15px;
+            transition: box-shadow 0.2s;
+            color: var(--text-main);
+        }
+
+        .email-row:hover {
+            box-shadow: inset 1px 0 0 #bfdbfe, inset -1px 0 0 #bfdbfe, 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+            z-index: 1;
+            background: #f0f7ff;
+        }
+
+        .email-row .sender {
+            width: 200px;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .email-row .subject {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .email-row .snippet {
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .email-row .date {
+            width: 80px;
+            text-align: right;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #94a3b8;
+            gap: 12px;
+        }
+
+        .empty-state .material-icons {
+            font-size: 64px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            font-weight: 500;
+        }
 
         /* Security Banner */
-        .security-banner { display: none; margin: 16px; padding: 16px; border-radius: 8px; border-left: 8px solid; align-items: center; gap: 1rem; }
-        .banner-ALERT { display: flex; background: var(--alert-bg); border-color: var(--gmail-red); color: #a50b0b; }
-        .banner-PASS { display: flex; background: var(--safe-bg); border-color: #1e8e3e; color: #137333; }
+        .security-banner {
+            display: none;
+            margin: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 8px solid;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .banner-ALERT {
+            display: flex;
+            background: var(--alert-bg);
+            border-color: var(--gmail-red);
+            color: #a50b0b;
+        }
+
+        .banner-PASS {
+            display: flex;
+            background: var(--safe-bg);
+            border-color: #1e8e3e;
+            color: #137333;
+        }
 
         /* Message Detail */
-        .detail-view { display: none; flex-direction: column; height: 100%; }
-        .detail-header { padding: 20px; border-bottom: 1px solid var(--border); }
-        .detail-subject { font-size: 22px; margin-bottom: 16px; }
-        .detail-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-        .avatar { width: 40px; height: 40px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; }
-        .detail-body { padding: 20px; line-height: 1.6; white-space: pre-wrap; font-size: 15px; flex: 1; overflow-y: auto; }
+        .detail-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .detail-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-subject {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .detail-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .detail-body {
+            padding: 20px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            font-size: 16px;
+            flex: 1;
+            overflow-y: auto;
+            color: var(--text-main);
+        }
 
         /* Controls Area */
-        .controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .circle-btn { width: 56px; height: 56px; border-radius: 50%; border:none; background: var(--gmail-red); color:#fff; cursor:pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: flex; align-items:center; justify-content:center; transition: 0.2s; }
-        .circle-btn:hover { background: #b3261e; }
-        .tooltip { position: absolute; right: 65px; background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: 0.2s; }
-        .circle-btn:hover + .tooltip { opacity: 1; }
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-        .loader { width: 20px; height: 20px; border: 3px solid #ccc; border-top-color: var(--gmail-red); border-radius: 50%; animation: spin 1s linear infinite; display: none; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .circle-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gmail-red);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .circle-btn:hover {
+            background: #b3261e;
+        }
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ccc;
+            border-top-color: var(--gmail-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
+
 <body>
     <header>
         <div class="logo">
             <span class="material-icons" style="color: var(--gmail-red)">mail</span>
             <span>Gmail</span>
-            <span style="font-size: 12px; color: #888; margin-left: 5px;">Sandbox</span>
+            <span style="font-size: 13px; color: #1e3a5f; font-weight: 600; margin-left: 5px;">Sandbox</span>
         </div>
         <div class="search-container">
             <span class="material-icons" style="color: var(--text-sub)">search</span>
@@ -96,45 +397,49 @@
                 <span class="material-icons">add</span>
                 Generate 10 Emails
             </div>
-            <div class="nav-item active" onclick="switchTab('inbox')">
+            <div class="nav-item active" onclick="switchTab('inbox', this)">
                 <span class="material-icons">inbox</span>
-                Inbox
+                <span class="nav-label">Inbox</span>
+                <span class="nav-badge badge-safe" id="badge-inbox" style="display:none"></span>
             </div>
-            <div class="nav-item" onclick="switchTab('spam')">
+            <div class="nav-item" onclick="switchTab('spam', this)">
                 <span class="material-icons">report</span>
-                Spam
+                <span class="nav-label">Spam</span>
+                <span class="nav-badge badge-warn" id="badge-spam" style="display:none"></span>
             </div>
-            <div class="nav-item" onclick="switchTab('unscanned')">
+            <div class="nav-item" onclick="switchTab('unscanned', this)">
                 <span class="material-icons">schedule</span>
-                Processing
+                <span class="nav-label">Processing</span>
+                <span class="nav-badge badge-info" id="badge-processing" style="display:none"></span>
             </div>
             <div class="nav-item" onclick="window.location.href='/api/export_report'">
                 <span class="material-icons">description</span>
-                Science Report
+                <span class="nav-label">Science Report</span>
             </div>
         </nav>
 
         <div class="content">
             <div class="toolbar">
-                <span class="material-icons" style="color: var(--text-sub); cursor:pointer;" onclick="loadAll()">refresh</span>
-                <button onclick="runScan()" style="padding: 4px 12px; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; font-size:12px;">Run Detection Engine</button>
+                <span class="material-icons" style="color: var(--text-sub); cursor:pointer;"
+                    onclick="loadAll()">refresh</span>
+                <button onclick="runScan()"
+                    style="padding: 4px 12px; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; font-size:12px;">Run
+                    Detection Engine</button>
                 <div class="loader" id="main-loader"></div>
             </div>
 
             <!-- List View -->
-            <div class="email-list" id="email-list">
-                <!-- Data populated via JS -->
-            </div>
+            <div class="email-list" id="email-list"></div>
 
             <!-- Detail View -->
             <div class="detail-view" id="detail-view">
                 <div class="toolbar" style="padding: 12px 20px;">
                     <span class="material-icons" style="cursor:pointer;" onclick="closeDetail()">arrow_back</span>
                 </div>
-                
+
                 <div class="security-banner" id="security-banner">
                     <span class="material-icons" id="banner-icon">warning</span>
-                    <div id="banner-text">Be careful with this message. PhishDefense AI has flagged this as a high-risk phishing attempt.</div>
+                    <div id="banner-text">Be careful with this message.</div>
                 </div>
 
                 <div class="detail-header">
@@ -142,18 +447,18 @@
                     <div class="detail-meta">
                         <div class="avatar" id="view-avatar">?</div>
                         <div style="flex: 1">
-                            <div style="font-weight: 700;" id="view-sender">Sender Name &lt;email@example.com&gt;</div>
-                            <div style="font-size: 12px; color: var(--text-sub);">to me</div>
+                            <div style="font-weight: 700; font-size: 15px;" id="view-sender">Sender</div>
+                            <div style="font-size: 13px; color: #334155; font-weight: 600;">to me</div>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-sub);" id="view-date">Oct 12, 11:23 AM</div>
+                        <div style="font-size: 13px; color: #334155; font-weight: 600;" id="view-date"></div>
                     </div>
                 </div>
-                <div class="detail-body" id="view-body">
-                    Message content...
-                </div>
-                <div id="forensic-insight" style="margin: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 13px; border: 1px dashed #ccc;">
-                    <strong>PhishDefense Forensics:</strong>
-                    <p id="forensic-text" style="color: var(--text-sub); margin-top: 5px;"></p>
+                <div class="detail-body" id="view-body">Message content...</div>
+                <div id="forensic-insight"
+                    style="margin: 20px; padding: 15px; background: #eff6ff; border-radius: 8px; font-size: 15px; border: 1px dashed #93c5fd;">
+                    <strong style="color: #1e3a5f;">PhishDefense Forensics:</strong>
+                    <p id="forensic-text" style="color: #0f172a; margin-top: 5px; font-weight: 500; line-height: 1.6;">
+                    </p>
                 </div>
             </div>
         </div>
@@ -163,34 +468,61 @@
         let results = [];
         let unscanned = [];
         let currentTab = 'inbox';
-        let refreshInterval = null;
+
+        // Escape HTML to prevent DOM injection
+        function escHtml(str) {
+            if (str == null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
 
         async function loadAll() {
-            // Only show loader on manual refresh
-            if (!refreshInterval) document.getElementById('main-loader').style.display = 'block';
-            
+            document.getElementById('main-loader').style.display = 'block';
             try {
-                // Fetch both concurrently
                 const [res1, res2] = await Promise.all([
                     fetch('/api/results').then(r => r.json()),
                     fetch('/api/inbox').then(r => r.json())
                 ]);
-                
                 results = res1;
                 unscanned = res2;
-                
+                updateBadges();
                 renderActiveTab();
-            } catch (e) { 
-                console.error("Data sync error:", e); 
-            } finally { 
-                document.getElementById('main-loader').style.display = 'none'; 
+            } catch (e) {
+                console.error("Data sync error:", e);
+            } finally {
+                document.getElementById('main-loader').style.display = 'none';
             }
         }
 
-        function switchTab(tab) {
+        function updateBadges() {
+            const inboxCount = results.filter(r => r.status === 'PASS').length;
+            const spamCount = results.filter(r => r.status === 'ALERT' || r.status === 'QUARANTINE').length;
+            const processingCount = unscanned.length;
+
+            setBadge('badge-inbox', inboxCount, 'badge-safe');
+            setBadge('badge-spam', spamCount, 'badge-warn');
+            setBadge('badge-processing', processingCount, 'badge-info');
+        }
+
+        function setBadge(id, count, cls) {
+            const el = document.getElementById(id);
+            if (count > 0) {
+                el.textContent = count > 99 ? '99+' : count;
+                el.style.display = 'inline-flex';
+                el.className = 'nav-badge ' + cls;
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function switchTab(tab, el) {
             currentTab = tab;
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
             renderActiveTab();
             closeDetail();
         }
@@ -198,42 +530,78 @@
         function renderActiveTab() {
             const list = document.getElementById('email-list');
             list.innerHTML = '';
-            
+
             let dataToShow = [];
-            
+
             if (currentTab === 'inbox') {
-                // Combine results (scanned) and unscanned
-                const markedUnscanned = unscanned.map(u => ({...u, isPending: true}));
-                dataToShow = [...results, ...markedUnscanned];
+                // Only scanned emails cleared as safe
+                dataToShow = results.filter(r => r.status === 'PASS');
             } else if (currentTab === 'spam') {
-                dataToShow = results.filter(r => r.status === 'ALERT');
+                // Scanned emails flagged as threats
+                dataToShow = results.filter(r => r.status === 'ALERT' || r.status === 'QUARANTINE');
             } else if (currentTab === 'unscanned') {
-                dataToShow = unscanned.map(u => ({...u, isPending: true}));
+                // Emails awaiting scanning — not yet processed
+                dataToShow = unscanned.map(u => ({ ...u, isPending: true }));
             }
 
-            // Sort by unique timestamp or string (newest first)
-            dataToShow.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+            // Sort newest first
+            dataToShow.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
+
+            if (dataToShow.length === 0) {
+                const emptyMessages = {
+                    inbox: { icon: 'mark_email_read', text: 'No safe emails yet — run the Detection Engine to classify your inbox.' },
+                    spam: { icon: 'verified_user', text: 'No threats detected yet.' },
+                    unscanned: { icon: 'schedule', text: 'No emails pending processing.' }
+                };
+                const msg = emptyMessages[currentTab] || { icon: 'inbox', text: 'Nothing here.' };
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <span class="material-icons">${msg.icon}</span>
+                        <p>${msg.text}</p>
+                    </div>`;
+                return;
+            }
 
             dataToShow.forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'email-row';
-                if (item.isPending) row.style.opacity = '0.7';
+                if (item.isPending) row.style.opacity = '0.65';
                 row.onclick = () => showDetail(item);
-                
-                const senderFull = item.sender || "Unknown Sender";
+
+                const senderFull = item.sender || 'Unknown Sender';
                 const senderName = senderFull.split('<')[0].replace(/"/g, '').trim() || senderFull;
-                const snippet = item.isPending ? "Analyzing email content..." : (item.body || (item.heuristics?.findings?.length ? item.heuristics.findings[0] : "No preview available"));
-                const statusIcon = item.isPending ? "schedule" : (item.status === 'ALERT' ? "report" : "verified_user");
-                const iconColor = item.isPending ? "#888" : (item.status === 'ALERT' ? "var(--gmail-red)" : "#1e8e3e");
-                
+
+                let rawSnippet;
+                if (item.isPending) {
+                    rawSnippet = 'Awaiting scan...';
+                } else {
+                    rawSnippet = item.body || (item.heuristics?.findings?.length ? item.heuristics.findings[0] : 'No preview available');
+                }
+                const snippet = String(rawSnippet || '').substring(0, 80);
+
+                let statusIcon, iconColor;
+                if (item.isPending) {
+                    statusIcon = 'schedule'; iconColor = '#888';
+                } else if (item.status === 'ALERT' || item.status === 'QUARANTINE') {
+                    statusIcon = 'report'; iconColor = 'var(--gmail-red)';
+                } else {
+                    statusIcon = 'verified_user'; iconColor = '#1e8e3e';
+                }
+
+                const dateDisplay = item.timestamp
+                    ? String(item.timestamp).split('T')[0].replace(/_.*/, '')
+                    : 'Recent';
+
                 row.innerHTML = `
-                    <div style="width: 40px; display: flex; align-items: center;"><span class="material-icons" style="font-size: 18px; color: ${iconColor}">${statusIcon}</span></div>
-                    <div class="sender">${senderName}</div>
-                    <div class="subject">
-                        <span>${item.subject}</span> - 
-                        <span class="snippet">${snippet.substring(0, 80)}...</span>
+                    <div style="width:40px;display:flex;align-items:center;">
+                        <span class="material-icons" style="font-size:18px;color:${iconColor}">${statusIcon}</span>
                     </div>
-                    <div class="date">${item.timestamp?.split('_')[0] || 'Recent'}</div>
+                    <div class="sender">${escHtml(senderName)}</div>
+                    <div class="subject">
+                        <span>${escHtml(item.subject || '(no subject)')}</span> - 
+                        <span class="snippet">${escHtml(snippet)}...</span>
+                    </div>
+                    <div class="date">${escHtml(dateDisplay)}</div>
                 `;
                 list.appendChild(row);
             });
@@ -242,29 +610,31 @@
         function showDetail(item) {
             document.getElementById('email-list').style.display = 'none';
             document.getElementById('detail-view').style.display = 'flex';
-            
-            document.getElementById('view-subject').innerText = item.subject;
-            document.getElementById('view-sender').innerText = item.sender;
-            document.getElementById('view-avatar').innerText = item.sender[0].toUpperCase();
-            document.getElementById('view-body').innerText = item.body || "Scan pending for content retrieval.";
-            document.getElementById('view-date').innerText = item.timestamp || "Pending";
+
+            document.getElementById('view-subject').innerText = item.subject || '(no subject)';
+            document.getElementById('view-sender').innerText = item.sender || 'Unknown';
+            document.getElementById('view-avatar').innerText = (item.sender || '?')[0].toUpperCase();
+            document.getElementById('view-body').innerText = item.body || 'Scan pending — content not yet available.';
+            document.getElementById('view-date').innerText = item.timestamp || 'Pending';
 
             const banner = document.getElementById('security-banner');
             const forensic = document.getElementById('forensic-insight');
-            
+
             if (item.status) {
                 banner.style.display = 'flex';
                 banner.className = `security-banner banner-${item.status}`;
                 forensic.style.display = 'block';
-                
-                if (item.status === 'ALERT') {
-                    document.getElementById('banner-text').innerText = "This message looks dangerous. PhishDefense AI identified it as a high-confidence phishing attempt.";
-                    document.getElementById('banner-icon').innerText = "report";
-                    document.getElementById('forensic-text').innerText = item.llm_analysis ? item.llm_analysis.analysis : item.heuristics.findings.join(', ');
+
+                if (item.status === 'ALERT' || item.status === 'QUARANTINE') {
+                    document.getElementById('banner-text').innerText = 'This message looks dangerous. PhishDefense AI identified it as a high-confidence phishing attempt.';
+                    document.getElementById('banner-icon').innerText = 'report';
+                    document.getElementById('forensic-text').innerText = item.llm_analysis
+                        ? item.llm_analysis.analysis
+                        : (item.heuristics?.findings || []).join(', ');
                 } else {
-                    document.getElementById('banner-text').innerText = "PhishDefense verified this message as safe corporate communication.";
-                    document.getElementById('banner-icon').innerText = "verified_user";
-                    document.getElementById('forensic-text').innerText = "Zero Trust verified sender-recipient relationship and cleared heuristic markers.";
+                    document.getElementById('banner-text').innerText = 'PhishDefense verified this message as safe corporate communication.';
+                    document.getElementById('banner-icon').innerText = 'verified_user';
+                    document.getElementById('forensic-text').innerText = 'Zero Trust verified sender-recipient relationship and cleared all heuristic markers.';
                 }
             } else {
                 banner.style.display = 'none';
@@ -278,21 +648,21 @@
         }
 
         async function runBatch() {
-            if(!confirm("Generate 10 new emails with a randomized mixture of phishing and benign samples?")) return;
+            if (!confirm('Generate 10 new emails with a randomized mixture of phishing and benign samples?')) return;
             document.getElementById('main-loader').style.display = 'block';
-            await fetch('/api/run_offense?batch=10', {method: 'POST'});
+            await fetch('/api/run_offense?batch=10', { method: 'POST' });
             loadAll();
         }
 
         async function runScan() {
             document.getElementById('main-loader').style.display = 'block';
-            await fetch('/api/run_scan', {method: 'POST'});
+            await fetch('/api/run_scan', { method: 'POST' });
             loadAll();
         }
 
         loadAll();
-        // Set up background refresh every 5 seconds
-        refreshInterval = setInterval(loadAll, 5000);
+        setInterval(loadAll, 5000);
     </script>
 </body>
+
 </html>

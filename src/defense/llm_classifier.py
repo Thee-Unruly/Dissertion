@@ -34,7 +34,9 @@ class LLMClassifier:
     }}
     """
 
-    def __init__(self, model_name="llama-3.3-70b-versatile"):
+    def __init__(self, model_name=None):
+        if model_name is None:
+            model_name = os.getenv("MODEL_NAME", "mixtral-8x7b-32768")
         api_key = os.getenv("GROQ_API_KEY")
         self.llm = ChatGroq(
             groq_api_key=api_key,

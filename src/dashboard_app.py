@@ -3,6 +3,17 @@ import json
 import os
 import subprocess
 import sys
+import math
+
+def sanitize_nan(obj):
+    """Recursively replace NaN/Inf floats with None for valid JSON output."""
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    if isinstance(obj, dict):
+        return {k: sanitize_nan(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize_nan(i) for i in obj]
+    return obj
 
 # Add project root to path so we can import our modules
 sys.path.append(os.getcwd())
@@ -27,8 +38,13 @@ def get_results():
     if os.path.exists(results_file):
         with open(results_file, 'r', encoding='utf-8') as f:
             for line in f:
+                line = line.strip()
+                if not line:
+                    continue
                 try:
-                    data.append(json.loads(line))
+                    # parse_constant=None makes json.loads accept NaN/Infinity
+                    record = json.loads(line)
+                    data.append(sanitize_nan(record))
                 except:
                     continue
     return jsonify(data)
@@ -60,8 +76,8 @@ def get_inbox():
                         emails.append({
                             "id": filename,
                             "sender": mail.get("sender"),
-                            "subject": mail.get("subject"),
-                            "body": mail.get("body", "")[:50] + "...",
+                            "subject": mail.get("subject") or "",
+                            "body": str(mail.get("body") or "")[:50] + "...",
                             "timestamp": mail.get("timestamp")
                         })
                     except:
@@ -124,7 +140,7 @@ def export_report():
     alerts = len([d for d in data if d['status'] == 'ALERT'])
     quarantine = len([d for d in data if d['status'] == 'QUARANTINE'])
     pass_count = len([d for d in data if d['status'] == 'PASS'])
-    avg_risk = sum([d['final_risk_score'] for d in data]) / total
+    avg_risk = sum([d.get('final_risk_score') or 0 for d in data]) / total
     
     report = f"--- PHISH-DEFENSE AI LAB REPORT ---\n"
     report += f"Generated on: {data[-1]['timestamp']}\n\n"

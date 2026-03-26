@@ -26,7 +26,7 @@ def run_experiment(limit_targets=2):
     df = pd.read_csv("data/processed_enron.csv")
     targets = df.dropna(subset=['X-From', 'To', 'Date', 'Subject', 'Body']).sample(n=min(limit_targets, len(df)))
     
-    generator = PhishingGenerator(model_name="llama-3.3-70b-versatile")
+    generator = PhishingGenerator(model_name=os.getenv("MODEL_NAME", "llama-3.3-70b-versatile"))
     
     # Select bridge based on mode
     if mode == "MAILTRAP":
