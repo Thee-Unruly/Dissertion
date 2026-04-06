@@ -60,7 +60,8 @@ class DetectorEngine:
                 subject = str(email_data.get("subject", ""))
                 body = str(email_data.get("body", ""))
                 
-                print(f"Analyzing: {subject[:50]}...")
+                print(f"\n[SCANNING] File: {filename}")
+                print(f"   ↳ Subject: {subject[:60]}...")
 
                 # 1. Heuristic Analysis
                 h_results = self.heuristic_analyzer.analyze(subject, body)
@@ -110,6 +111,12 @@ class DetectorEngine:
 
                 analysis_report.append(entry)
                 self._log_result(entry)
+                print(f"   ✓ Score: {entry['final_risk_score']:.1f} | Status: {entry['status']}")
+                
+                # Remove from inbox after processing to avoid rescanning
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    
             except Exception as loop_e:
                 print(f"Skipping malformed file {filename}: {loop_e}")
                 continue

@@ -422,9 +422,10 @@
             <div class="toolbar">
                 <span class="material-icons" style="color: var(--text-sub); cursor:pointer;"
                     onclick="loadAll()">refresh</span>
-                <button onclick="runScan()"
+                <button id="scan-btn" onclick="runScan()"
                     style="padding: 4px 12px; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; font-size:12px;">Run
                     Detection Engine</button>
+                <span id="scan-status" style="font-size: 12px; color: #1e3a5f; font-weight: 600;"></span>
                 <div class="loader" id="main-loader"></div>
             </div>
 
@@ -648,16 +649,49 @@
         }
 
         async function runBatch() {
-            if (!confirm('Generate 10 new emails with a randomized mixture of phishing and benign samples?')) return;
+            if (!confirm('Generate 10 new emails? The Detection Engine will start automatically after generation completes.')) return;
             document.getElementById('main-loader').style.display = 'block';
-            await fetch('/api/run_offense?batch=10', { method: 'POST' });
-            loadAll();
+            const status = document.getElementById('scan-status');
+            status.innerText = "Generating 10 samples (Offense Pipeline)...";
+            
+            try {
+                await fetch('/api/run_offense?batch=10', { method: 'POST' });
+                status.innerText = "Generation complete. Starting Detection Engine...";
+                await loadAll();
+                await runScan();
+            } catch (e) {
+                status.innerText = "Error during generation sequence.";
+            }
         }
 
         async function runScan() {
+            const btn = document.getElementById('scan-btn');
+            const status = document.getElementById('scan-status');
+            const unscannedCount = unscanned.length;
+
+            if (unscannedCount === 0) {
+                alert('No emails in "Processing" tab to scan.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            status.innerText = `Analyzing ${unscannedCount} email(s)... Check terminal for forensic logs.`;
             document.getElementById('main-loader').style.display = 'block';
-            await fetch('/api/run_scan', { method: 'POST' });
-            loadAll();
+
+            try {
+                await fetch('/api/run_scan', { method: 'POST' });
+                status.innerText = 'Scan complete! Classification finished.';
+                setTimeout(() => { status.innerText = ''; }, 5000);
+            } catch (e) {
+                status.innerText = 'Error during scan.';
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                document.getElementById('main-loader').style.display = 'none';
+                loadAll();
+                if (currentTab === 'unscanned') switchTab('spam', document.querySelector('.nav-item[onclick*="spam"]'));
+            }
         }
 
         loadAll();

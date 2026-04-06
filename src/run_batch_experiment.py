@@ -28,7 +28,7 @@ def run_named_batch(total_count=10, phish_count=None, benign_count=None, inbox_d
     
     # Load Enron data
     df = pd.read_csv("data/processed_enron.csv")
-    generator = PhishingGenerator(model_name="llama-3.3-70b-versatile")
+    generator = PhishingGenerator(model_name=os.getenv("MODEL_NAME", "llama-3.1-8b-instant"))
     
     ground_truth = {}
     if os.path.exists("data/ground_truth.json"):

@@ -36,7 +36,7 @@ class LLMClassifier:
 
     def __init__(self, model_name=None):
         if model_name is None:
-            model_name = os.getenv("MODEL_NAME", "mixtral-8x7b-32768")
+            model_name = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
         api_key = os.getenv("GROQ_API_KEY")
         self.llm = ChatGroq(
             groq_api_key=api_key,
@@ -52,31 +52,35 @@ class LLMClassifier:
 
     def analyze(self, subject, body):
         """
-        Runs the LLM analysis and returns the parsed JSON result.
+        Runs the LLM analysis with retries for rate limits.
         """
-        try:
-            # Use invoke for modern compatibility
-            response = self.chain.invoke({"subject": subject, "body": body})
-            response_text = response.content if hasattr(response, 'content') else str(response)
-            
-            # Find JSON block in case LLM adds chat filler around it
-            if "{" in response_text and "}" in response_text:
-                json_str = response_text[response_text.find("{"):response_text.rfind("}")+1]
-                return json.loads(json_str)
-            return {
-                "risk_score": 0,
-                "risk_level": "Error",
-                "analysis": "Failed to parse LLM response.",
-                "detected_tactics": []
-            }
-        except Exception as e:
-            print(f"LLM Classification Error: {e}")
-            return {
-                "risk_score": 0,
-                "risk_level": "Error",
-                "analysis": str(e),
-                "detected_tactics": []
-            }
+        import time
+        max_retries = 3
+        delay = 5 
+        
+        for attempt in range(max_retries):
+            try:
+                response = self.chain.invoke({"subject": subject, "body": body})
+                response_text = response.content if hasattr(response, 'content') else str(response)
+                
+                if "{" in response_text and "}" in response_text:
+                    json_str = response_text[response_text.find("{"):response_text.rfind("}")+1]
+                    return json.loads(json_str)
+                break
+            except Exception as e:
+                if "rate_limit" in str(e).lower() and attempt < max_retries - 1:
+                    print(f"   ! Rate limited. Retrying in {delay}s...")
+                    time.sleep(delay)
+                    delay *= 2
+                    continue
+                print(f"LLM Classification Error: {e}")
+                
+        return {
+            "risk_score": 0,
+            "risk_level": "Error",
+            "analysis": "LLM failed or rate limited.",
+            "detected_tactics": []
+        }
 
 if __name__ == "__main__":
     # Test

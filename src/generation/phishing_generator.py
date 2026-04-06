@@ -9,7 +9,7 @@ from src.generation.prompt_templates import get_template
 # load_dotenv moved inside class for robustness
 
 class PhishingGenerator:
-    def __init__(self, model_name="llama-3.3-70b-versatile"):
+    def __init__(self, model_name="llama-3.1-8b-instant"):
         env_path = os.path.join(os.getcwd(), '.env')
         load_dotenv(env_path)
         

@@ -1,6 +1,11 @@
 import pandas as pd
 import random
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
+
 from src.generation.phishing_generator import PhishingGenerator
 from src.sandbox.mock_smtp import MockSMTP
 from src.sandbox.mailtrap_bridge import MailtrapBridge
@@ -26,7 +31,7 @@ def run_experiment(limit_targets=2):
     df = pd.read_csv("data/processed_enron.csv")
     targets = df.dropna(subset=['X-From', 'To', 'Date', 'Subject', 'Body']).sample(n=min(limit_targets, len(df)))
     
-    generator = PhishingGenerator(model_name=os.getenv("MODEL_NAME", "llama-3.3-70b-versatile"))
+    generator = PhishingGenerator(model_name=os.getenv("MODEL_NAME", "llama-3.1-8b-instant"))
     
     # Select bridge based on mode
     if mode == "MAILTRAP":
