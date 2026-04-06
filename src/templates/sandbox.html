@@ -650,33 +650,47 @@
 
         async function runBatch() {
             if (!confirm('Generate 10 new emails? The Detection Engine will start automatically after generation completes.')) return;
-            document.getElementById('main-loader').style.display = 'block';
+            const btn = document.getElementById('scan-btn');
             const status = document.getElementById('scan-status');
-            status.innerText = "Generating 10 samples (Offense Pipeline)...";
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            document.getElementById('main-loader').style.display = 'block';
+            status.innerText = 'Generating 10 samples (Offense Pipeline)...';
             
             try {
                 await fetch('/api/run_offense?batch=10', { method: 'POST' });
-                status.innerText = "Generation complete. Starting Detection Engine...";
+                status.innerText = 'Generation complete. Starting Detection Engine...';
+                // Directly call the scan API — no need to wait for loadAll
+                await fetch('/api/run_scan', { method: 'POST' });
+                status.innerText = 'Scan complete! Results are ready.';
+                setTimeout(() => { status.innerText = ''; }, 5000);
                 await loadAll();
-                await runScan();
+                switchTab('spam', document.querySelector('.nav-item[onclick*="spam"]'));
             } catch (e) {
-                status.innerText = "Error during generation sequence.";
+                status.innerText = 'Error during pipeline.';
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                document.getElementById('main-loader').style.display = 'none';
             }
         }
 
         async function runScan() {
             const btn = document.getElementById('scan-btn');
             const status = document.getElementById('scan-status');
+
+            // Refresh inbox list first to get an accurate count
+            await loadAll();
             const unscannedCount = unscanned.length;
 
             if (unscannedCount === 0) {
-                alert('No emails in "Processing" tab to scan.');
+                alert('No emails in "Processing" tab to scan. Generate emails first.');
                 return;
             }
 
             btn.disabled = true;
             btn.style.opacity = '0.5';
-            status.innerText = `Analyzing ${unscannedCount} email(s)... Check terminal for forensic logs.`;
+            status.innerText = `Analyzing ${unscannedCount} email(s)...`;
             document.getElementById('main-loader').style.display = 'block';
 
             try {
@@ -689,8 +703,8 @@
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 document.getElementById('main-loader').style.display = 'none';
-                loadAll();
-                if (currentTab === 'unscanned') switchTab('spam', document.querySelector('.nav-item[onclick*="spam"]'));
+                await loadAll();
+                switchTab('spam', document.querySelector('.nav-item[onclick*="spam"]'));
             }
         }
 
