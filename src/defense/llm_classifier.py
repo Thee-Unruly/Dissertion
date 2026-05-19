@@ -1,14 +1,18 @@
 import os
+import sys
 import json
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
+sys.path.append(os.getcwd())
+from src.config.detection_config import DETECTION_CONFIG
 
 load_dotenv(os.path.join(os.getcwd(), '.env'))
 
 class LLMClassifier:
     """
     Uses LLM reasoning to detect social engineering and phishing intent.
+    Now with configurable confidence filtering to reduce false positives.
     """
     
     DETECTION_PROMPT = """
@@ -29,12 +33,13 @@ class LLMClassifier:
     {{
         "risk_score": (int from 0 to 100),
         "risk_level": "(Low/Medium/High)",
+        "confidence": (float from 0.0 to 1.0, how confident are you in this classification),
         "analysis": "(Brief explanation of why it is or isn't phishing)",
         "detected_tactics": ["tactic1", "tactic2"]
     }}
     """
 
-    def __init__(self, model_name=None):
+    def __init__(self, model_name=None, config=None):
         if model_name is None:
             model_name = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
         api_key = os.getenv("GROQ_API_KEY")
@@ -49,6 +54,7 @@ class LLMClassifier:
         )
         # Modern LangChain Expression Language (LCEL)
         self.chain = self.prompt | self.llm
+        self.config = config or DETECTION_CONFIG["llm"]
 
     def analyze(self, subject, body):
         """
@@ -65,7 +71,15 @@ class LLMClassifier:
                 
                 if "{" in response_text and "}" in response_text:
                     json_str = response_text[response_text.find("{"):response_text.rfind("}")+1]
-                    return json.loads(json_str)
+                    result = json.loads(json_str)
+                    
+                    # Confidence filtering: downgrade low-confidence predictions
+                    confidence = result.get("confidence", 0.5)
+                    if confidence < self.config["confidence_min"]:
+                        original_score = result["risk_score"]
+                        result["risk_score"] = max(0, result["risk_score"] - 20)
+                        result["confidence_adjusted"] = f"Score reduced from {original_score} to {result['risk_score']} (low confidence: {confidence})"
+                    return result
                 break
             except Exception as e:
                 if "rate_limit" in str(e).lower() and attempt < max_retries - 1:

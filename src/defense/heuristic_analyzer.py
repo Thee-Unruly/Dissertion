@@ -1,9 +1,14 @@
 import re
 from urllib.parse import urlparse
+import sys
+import os
+sys.path.append(os.getcwd())
+from src.config.detection_config import DETECTION_CONFIG
 
 class HeuristicAnalyzer:
     """
     Analyzes email content for common heuristic phishing indicators.
+    Uses configurable thresholds from detection_config.py.
     """
     
     URGENCY_KEYWORDS = [
@@ -17,28 +22,29 @@ class HeuristicAnalyzer:
         r"management", r"strictly prohibited", r"mandatory", r"legal action"
     ]
 
-    def __init__(self, target_domain="enron.com"):
+    def __init__(self, target_domain="enron.com", config=None):
         self.target_domain = target_domain.lower()
         self.brand_name = target_domain.split('.')[0].lower()
+        self.config = config or DETECTION_CONFIG["heuristic"]
 
     def analyze(self, subject, body):
         """
-        Runs multiple heuristic checks and returns a combined score and findings.
+        Runs multiple heuristic checks using configurable weights.
         """
         findings = []
         score = 0
         
-        # 1. Urgency Detection
+        # 1. Urgency Detection (configurable weight)
         urgency_hits = self._check_keywords(subject + " " + body, self.URGENCY_KEYWORDS)
         if urgency_hits:
             findings.append(f"Urgency/Pressure detected: {', '.join(urgency_hits)}")
-            score += min(len(urgency_hits) * 10, 30)
+            score += min(len(urgency_hits) * self.config["urgency_weight"], 20)
             
-        # 2. Authority/Policy Language
+        # 2. Authority/Policy Language (configurable weight)
         auth_hits = self._check_keywords(body, self.AUTHORITY_KEYWORDS)
         if auth_hits:
             findings.append(f"Authority-based language detected: {', '.join(auth_hits)}")
-            score += min(len(auth_hits) * 5, 20)
+            score += min(len(auth_hits) * self.config["authority_weight"], 15)
             
         # 3. Link Analysis
         links = self._extract_links(body)
@@ -51,9 +57,12 @@ class HeuristicAnalyzer:
         # Normalize score (Cap at 100)
         final_score = min(score, 100)
         
+        high_threshold = self.config["high_risk_threshold"]
+        medium_threshold = self.config["medium_risk_threshold"]
+        
         return {
             "score": final_score,
-            "risk_level": "High" if final_score >= 70 else "Medium" if final_score >= 30 else "Low",
+            "risk_level": "High" if final_score >= high_threshold else "Medium" if final_score >= medium_threshold else "Low",
             "findings": findings
         }
 

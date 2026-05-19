@@ -10,6 +10,8 @@ sys.path.append(os.getcwd())
 from src.defense.heuristic_analyzer import HeuristicAnalyzer
 from src.defense.llm_classifier import LLMClassifier
 from src.defense.behavioral_baseline import BehavioralBaseline
+from src.defense.whitelist import WhitelistManager
+from src.config.detection_config import DETECTION_CONFIG
 
 class DetectorEngine:
     """
@@ -24,6 +26,8 @@ class DetectorEngine:
         self.target_domain = target_domain
         self.heuristic_analyzer = HeuristicAnalyzer(target_domain=target_domain)
         self.behavioral_baseline = BehavioralBaseline()
+        self.whitelist = WhitelistManager()
+        self.config = DETECTION_CONFIG
         # We'll initialize LLM classifier only if needed to save tokens during testing
         self.llm_classifier = None 
         self.results_log = "data/defense_analysis_v1.jsonl"
@@ -101,13 +105,29 @@ class DetectorEngine:
                 h_score = h_results['score']
                 l_score = l_results['risk_score'] if l_results else 0
                 
+                # Apply whitelist reduction for trusted senders
+                if self.whitelist.should_skip_aggressive_checks(sender):
+                    h_score = self.whitelist.apply_whitelist_reduction(h_score, sender)
+                    l_score = self.whitelist.apply_whitelist_reduction(l_score, sender)
+                
+                # Ensemble scoring with configurable weights
+                weights = self.config["combined"]
                 if use_llm:
-                    combined_score = (h_score * 0.3 + bh_score * 0.3 + l_score * 0.4)
+                    combined_score = (
+                        h_score * weights["heuristic_weight"] +
+                        bh_score * weights["behavioral_weight"] +
+                        l_score * weights["llm_weight"]
+                    )
                 else:
                     combined_score = (h_score * 0.5 + bh_score * 0.5)
                 
+                # Determine classification using configurable thresholds
+                high_t = self.config["heuristic"]["high_risk_threshold"]
+                medium_t = self.config["heuristic"]["medium_risk_threshold"]
+                
                 entry["final_risk_score"] = min(combined_score, 100)
-                entry["status"] = "ALERT" if combined_score >= 50 else "QUARANTINE" if combined_score >= 30 else "PASS"
+                entry["whitelisted"] = self.whitelist.is_whitelisted(sender)
+                entry["status"] = "ALERT" if combined_score >= high_t else "QUARANTINE" if combined_score >= medium_t else "PASS"
 
                 analysis_report.append(entry)
                 self._log_result(entry)
