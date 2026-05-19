@@ -15,8 +15,13 @@ def sanitize_nan(obj):
         return [sanitize_nan(i) for i in obj]
     return obj
 
-# Add project root to path so we can import our modules
-sys.path.append(os.getcwd())
+# Add project root to path so we can import our modules correctly regardless of current working directory
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+os.chdir(project_root) # Ensure all relative loads for 'data/' resolve to the root directory for all imported modules
+
+# Define absolute paths for data files so Flask resolves them correctly regardless of CWD.
+DATA_DIR = os.path.join(project_root, "data")
 
 from src.defense.detector_engine import DetectorEngine
 
@@ -33,7 +38,7 @@ def sandbox():
 
 @app.route('/api/results')
 def get_results():
-    results_file = "data/defense_analysis_v1.jsonl"
+    results_file = os.path.join(DATA_DIR, "defense_analysis_v1.jsonl")
     data = []
     if os.path.exists(results_file):
         with open(results_file, 'r', encoding='utf-8') as f:
@@ -51,7 +56,7 @@ def get_results():
 
 @app.route('/api/offense_logs')
 def get_offense_logs():
-    offense_file = "data/generated_phishing_v1.jsonl"
+    offense_file = os.path.join(DATA_DIR, "generated_phishing_v1.jsonl")
     data = []
     if os.path.exists(offense_file):
         with open(offense_file, 'r', encoding='utf-8') as f:
@@ -65,7 +70,7 @@ def get_offense_logs():
 @app.route('/api/inbox')
 def get_inbox():
     """Lists raw emails in the mock inbox waiting for scanning."""
-    inbox_dir = "data/mock_inbox/"
+    inbox_dir = os.path.join(DATA_DIR, "mock_inbox")
     emails = []
     if os.path.exists(inbox_dir):
         for filename in os.listdir(inbox_dir):
@@ -124,7 +129,7 @@ def export_report():
     """
     Generates a structured text report for dissertation purposes.
     """
-    results_file = "data/defense_analysis_v1.jsonl"
+    results_file = os.path.join(DATA_DIR, "defense_analysis_v1.jsonl")
     if not os.path.exists(results_file):
         return "No results found. Please run a scan first.", 404
         
@@ -170,7 +175,8 @@ def export_report():
     return report, 200, {'Content-Type': 'text/plain', 'Content-Disposition': 'attachment; filename=dissertation_lab_report.txt'}
 
 if __name__ == '__main__':
-    # Ensure data dir exists
-    os.makedirs("data", exist_ok=True)
+    # Ensure data dir exists using absolute path
+    os.makedirs(DATA_DIR, exist_ok=True)
     print("Dashboard starting at http://127.0.0.1:5000")
-    app.run(debug=True, port=5000)
+    # use_reloader=False prevents python from crashing due to os.chdir above
+    app.run(debug=True, use_reloader=False, port=5000)
